@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+/*
+ * BADYSS design tokens — the single source of truth for the color and type
+ * system (Phase 1 Creative Direction). PROPOSED, not yet client-approved.
+ *
+ * Color direction: warm, near-monochrome neutrals so product photography
+ * stays the visual focus, plus one confident accent (a darkened burnt
+ * terracotta) used sparingly for CTAs/highlights. Values below are chosen
+ * against WCAG AA contrast targets (documented in PROJECT_STATUS.md), not
+ * picked by eye alone.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f5f2;
+  --foreground: #171412;
+  --muted: #ede9e2;
+  --muted-foreground: #6b655d;
+  --surface: #ffffff;
+  --border: #e2ded7;
+  --accent: #9c4a1e;
+  --accent-foreground: #ffffff;
+  --inverse: #171412;
+  --inverse-foreground: #f7f5f2;
+  --success: #3f7a4e;
+  --error: #b23b3b;
+}
+
+/* Arabic locale: repoint the body/display font custom properties at the
+   Arabic-capable font loaded in the root layout (`--font-arabic`) instead of
+   touching every component that uses `font-sans`/`font-display` — those
+   Tailwind utilities resolve through these same custom properties (see the
+   `@theme inline` block below). Archivo/Inter have no Arabic glyphs and
+   would otherwise fall back to a generic system font. */
+html[lang="ar"] {
+  --font-body: var(--font-arabic);
+  --font-display: var(--font-arabic);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121110;
+    --foreground: #f5f2ed;
+    --muted: #1e1c1a;
+    --muted-foreground: #a39c92;
+    --surface: #1a1817;
+    --border: #2c2925;
+    --accent: #d98a4a;
+    --accent-foreground: #171412;
+    --inverse: #f5f2ed;
+    --inverse-foreground: #121110;
+    --success: #5fae73;
+    --error: #e06565;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-success: var(--success);
+  --color-error: var(--error);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+
+  /* Editorial display type scale — headlines only. Body copy uses Tailwind's
+     default text-sm/base/lg/xl scale on the --font-sans family. Pair each
+     size with font-extrabold/font-bold in usage (font-weight companions on
+     custom --text-* tokens aren't relied upon here for safety). */
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.2;
+  --text-display-sm--letter-spacing: -0.01em;
+
+  --text-display-md: 2rem;
+  --text-display-md--line-height: 1.15;
+  --text-display-md--letter-spacing: -0.01em;
+
+  --text-display-lg: 2.75rem;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  /* Oversized editorial statement size — large-desktop hero/campaign
+     headlines only, where typography is meant to behave as a graphic
+     object, not just a heading. */
+  --text-display-2xl: 6rem;
+  --text-display-2xl--line-height: 0.95;
+  --text-display-2xl--letter-spacing: -0.03em;
+
+  /* Widescreen-only campaign statement size — the hero headline and the
+     brand-manifesto pause, where type itself is the composition, not a
+     supporting element. Only ever paired with a wide breakpoint variant
+     (never the base mobile size) since it would overflow small viewports. */
+  --text-display-3xl: 8rem;
+  --text-display-3xl--line-height: 0.92;
+  --text-display-3xl--letter-spacing: -0.035em;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Subtle hero image drift — opt-in via CreativeVisual's `driftOnLoad` prop,
+   never a default. Plain CSS (no JS/Framer Motion needed for this one). */
+@keyframes hero-drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+.hero-image-drift {
+  animation: hero-drift 12s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image-drift {
+    animation: none;
+  }
+}
+
+/* Hides the native scrollbar on horizontally-scrollable editorial rails
+   (product discovery, mobile carousels) while keeping real native scroll —
+   touch/trackpad/keyboard behavior is untouched, only the visual scrollbar
+   chrome is removed since the snap dots/arrows already communicate it. */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Top bar ticker — a continuous, time-based CSS marquee (distinct from the
+   scroll-linked typography marquee after the Hero). Pure CSS on purpose: no
+   JS needed to loop it, pause it on hover, or respect reduced motion, so the
+   top bar ships as a Server Component with zero client-side cost. The track
+   renders its content twice back-to-back and translates by exactly -50%,
+   which loops seamlessly regardless of content length — no jump, no reset,
+   ever. Slower on small screens (`--marquee-duration` override below), not
+   just smaller text: a fast ticker reads as urgent/ad-like at phone width,
+   slower reads as deliberate art direction. */
+.marquee-track {
+  animation: marquee var(--marquee-duration, 50s) linear infinite;
+}
+
+@media (max-width: 639px) {
+  .marquee-track {
+    --marquee-duration: 74s;
+  }
+}
+
+.marquee-track:hover,
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }
