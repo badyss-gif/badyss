@@ -12,7 +12,7 @@ export const siteConfig = {
   currency: "MAD", // PROPOSED — matches business context (Morocco), not yet explicitly confirmed
   country: "MA", // PROPOSED
   contact: {
-    phone: "0707003517", // VERIFIED — appears consistently on the live site (header + contact page)
+    phone: "0627999736", // VERIFIED — appears consistently on the live site (header + contact page)
   },
   social: {
     facebook: "https://www.facebook.com/profile.php?id=61584535598750", // VERIFIED — provided directly
