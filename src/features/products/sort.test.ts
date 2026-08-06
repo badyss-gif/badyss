@@ -9,11 +9,14 @@ function makeProduct(overrides: Partial<Product>): Product {
     name: "Product",
     description: "",
     shortDescription: "",
+    sku: "SKU-1",
     price: { amount: 100, currency: "MAD", onSale: false },
     stock: { status: "in-stock" },
     images: [],
     categories: [],
     attributes: [],
+    type: "simple",
+    featured: false,
     ...overrides,
   };
 }

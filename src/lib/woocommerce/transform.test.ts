@@ -11,18 +11,23 @@ const rawProduct: WooCommerceProduct = {
   permalink: "https://example.test/product/test-product/",
   type: "simple",
   status: "publish",
+  featured: false,
   description: "Full description",
   short_description: "Short description",
+  sku: "TEST-SKU",
   price: "199.00",
   regular_price: "249.00",
   sale_price: "199.00",
   on_sale: true,
   stock_status: "instock",
+  stock_quantity: null,
+  manage_stock: false,
   categories: [{ id: 10, name: "Category A", slug: "category-a" }],
   images: [{ id: 100, src: "https://example.test/image.jpg", name: "image", alt: "Alt text" }],
   attributes: [
     { id: 1, name: "Size", position: 0, visible: true, variation: true, options: ["S", "M", "L"] },
   ],
+  variations: [],
 };
 
 describe("mapWooCommerceProduct", () => {

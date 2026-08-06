@@ -7,7 +7,8 @@ import type {
   WooCommerceStockStatus,
   WooCommerceVariation,
 } from "@/types/woocommerce";
-import type { Order, Product, ProductCategory, ProductImage, ProductPrice, ProductStock, ProductVariant, StockStatus } from "@/types/product";
+import type { Product, ProductCategory, ProductImage, ProductPrice, ProductStock, ProductVariant, StockStatus } from "@/types/product";
+import type { Order } from "@/types/order";
 
 function mapStockStatus(status: WooCommerceStockStatus): StockStatus {
   switch (status) {
