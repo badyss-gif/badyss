@@ -372,7 +372,8 @@
     "whatsAppHint": "Un dernier clic sur WhatsApp pour transmettre votre commande à notre équipe.",
     "teamWillContactPrefix": "Notre équipe vous contactera bientôt au",
     "teamWillContactSuffix": "pour confirmer votre commande.",
-    "continueShopping": "Continuer mes achats"
+    "continueShopping": "Continuer mes achats",
+    "orderError": "Une erreur est survenue lors de l'envoi de votre commande. Merci de réessayer ou de nous contacter directement."
   },
   "contact": {
     "metaTitle": "Contact",

@@ -7,6 +7,13 @@ interface WooCommerceRequestOptions {
   searchParams?: Record<string, string | number | boolean | undefined>;
   /** Next.js ISR revalidation window in seconds, or `false` to opt out of caching. */
   revalidate?: number | false;
+  /**
+   * Next.js cache tags for this GET request — lets the WooCommerce webhook
+   * route handler (`/api/webhooks/woocommerce`) invalidate exactly this data
+   * on demand via `revalidateTag()`, instead of waiting for the time-based
+   * `revalidate` window to expire.
+   */
+  tags?: string[];
   method?: "GET" | "POST" | "PUT";
   body?: unknown;
 }
@@ -32,8 +39,11 @@ export async function wooCommerceFetch<T>(
 
   const authHeader = `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64")}`;
   const method = options.method ?? "GET";
-  // Mutations must never be cached/ISR'd — only GET requests opt into `next.revalidate`.
-  const cacheOptions = method === "GET" ? { next: { revalidate: options.revalidate ?? 3600 } } : { cache: "no-store" as const };
+  // Mutations must never be cached/ISR'd — only GET requests opt into `next.revalidate`/`tags`.
+  const cacheOptions =
+    method === "GET"
+      ? { next: { revalidate: options.revalidate ?? 3600, tags: options.tags } }
+      : { cache: "no-store" as const };
 
   const response = await fetch(url.toString(), {
     method,

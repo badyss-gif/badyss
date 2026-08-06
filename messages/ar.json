@@ -372,7 +372,8 @@
     "whatsAppHint": "نقرة أخيرة على واتساب لإرسال طلبيتك إلى فريقنا.",
     "teamWillContactPrefix": "سيتواصل معك فريقنا قريباً على",
     "teamWillContactSuffix": "لتأكيد طلبيتك.",
-    "continueShopping": "متابعة التسوق"
+    "continueShopping": "متابعة التسوق",
+    "orderError": "حدث خطأ أثناء إرسال طلبيتك. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة."
   },
   "contact": {
     "metaTitle": "اتصل بنا",

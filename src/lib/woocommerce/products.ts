@@ -6,6 +6,12 @@ import type { WooCommerceProduct, WooCommerceVariation } from "@/types/woocommer
 // REST API v3 contract, confirmed via GET /wc/v3/products and
 // /wc/v3/products/{id}/variations against the real store.
 
+// Tagged "products" so the WooCommerce webhook route handler
+// (`/api/webhooks/woocommerce`) can invalidate every product-derived page in
+// one `revalidateTag("products")` call whenever a product is created,
+// updated, or deleted in WooCommerce — see that route for the webhook side.
+const PRODUCTS_TAG = "products";
+
 export async function getProducts(params?: {
   category?: string;
   perPage?: number;
@@ -20,18 +26,20 @@ export async function getProducts(params?: {
       status: "publish",
       featured: params?.featured,
     },
+    tags: [PRODUCTS_TAG],
   });
 }
 
 export async function getProductBySlug(slug: string): Promise<WooCommerceProduct | null> {
   const products = await wooCommerceFetch<WooCommerceProduct[]>("/products", {
     searchParams: { slug },
+    tags: [PRODUCTS_TAG],
   });
   return products[0] ?? null;
 }
 
 export async function getProductById(id: number): Promise<WooCommerceProduct | null> {
-  return wooCommerceFetch<WooCommerceProduct>(`/products/${id}`).catch(() => null);
+  return wooCommerceFetch<WooCommerceProduct>(`/products/${id}`, { tags: [PRODUCTS_TAG] }).catch(() => null);
 }
 
 export async function searchProducts(
@@ -44,6 +52,7 @@ export async function searchProducts(
       per_page: params?.perPage ?? 24,
       status: "publish",
     },
+    tags: [PRODUCTS_TAG],
   });
 }
 
@@ -51,5 +60,6 @@ export async function searchProducts(
 export async function getProductVariations(productId: number): Promise<WooCommerceVariation[]> {
   return wooCommerceFetch<WooCommerceVariation[]>(`/products/${productId}/variations`, {
     searchParams: { per_page: 100 },
+    tags: [PRODUCTS_TAG],
   });
 }

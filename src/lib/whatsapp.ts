@@ -77,3 +77,53 @@ export function getWhatsAppOrderUrl(order: WhatsAppOrderDetails): string | null 
 
   return `https://wa.me/${publicEnv.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
+
+export interface WhatsAppCartOrderItem {
+  name: string;
+  quantity: number;
+  attributes?: Record<string, string>;
+}
+
+export interface WhatsAppCartOrderDetails {
+  reference: string;
+  items: WhatsAppCartOrderItem[];
+  totalPrice: number;
+  currency: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  city: string;
+}
+
+/**
+ * Same order-handoff mechanism as `getWhatsAppOrderUrl`, for the cart-based
+ * `/commande` checkout (`CheckoutClient.tsx`) instead of the single-product
+ * "Buy Now" flow — lists every line item rather than one product.
+ */
+export function getWhatsAppCartOrderUrl(order: WhatsAppCartOrderDetails): string | null {
+  if (!publicEnv.whatsappNumber) return null;
+
+  const itemLines = order.items.map((item) => {
+    const attributesLine =
+      item.attributes && Object.keys(item.attributes).length > 0
+        ? ` (${Object.entries(item.attributes)
+            .map(([name, value]) => `${name}: ${value}`)
+            .join(", ")})`
+        : "";
+    return `- ${item.name}${attributesLine} × ${item.quantity}`;
+  });
+
+  const message = [
+    `Nouvelle commande BADYSS — Réf. ${order.reference}`,
+    "",
+    ...itemLines,
+    "",
+    `Total : ${formatPrice(order.totalPrice, order.currency)}`,
+    "",
+    `Client : ${order.customerName}`,
+    `Téléphone : ${order.phone}`,
+    `Adresse : ${order.address}, ${order.city}`,
+  ].join("\n");
+
+  return `https://wa.me/${publicEnv.whatsappNumber}?text=${encodeURIComponent(message)}`;
+}

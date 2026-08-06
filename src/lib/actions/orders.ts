@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { createOrder } from "@/lib/api";
 import { isValidMoroccanPhone } from "@/lib/validation";
 import type { CreateOrderInput, OrderLineItemInput } from "@/types/order";
@@ -56,6 +57,12 @@ export async function submitOrder(input: SubmitOrderInput): Promise<SubmitOrderR
 
   try {
     const order = await createOrder(payload);
+    // An order consumes stock immediately — `updateTag` (read-your-own-writes,
+    // only callable from a Server Action) makes the next request for product
+    // data wait for a fresh fetch, rather than showing stale stock/quantity
+    // limits until the `order.created` WooCommerce webhook round-trip lands
+    // (see `/api/webhooks/woocommerce`, which handles the general case).
+    updateTag("products");
     return { ok: true, orderNumber: order.number, total: order.total, currency: order.currency };
   } catch (error) {
     console.error("[submitOrder] WooCommerce order creation failed:", error);

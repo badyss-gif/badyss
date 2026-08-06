@@ -17,7 +17,7 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { Community } from "@/components/sections/Community";
 import { FaqPreview } from "@/components/sections/FaqPreview";
 import { Newsletter } from "@/components/sections/Newsletter";
-import { mockFeaturedProducts } from "@/lib/mock-data/products";
+import { getFeaturedProducts } from "@/lib/api";
 import { routes } from "@/config/routes";
 
 // Description is PROPOSED — states only verified catalog facts (ensembles,
@@ -34,11 +34,13 @@ const HERO_ALT = "Homme en tenue urbaine contemporaine BADYSS, marchant dans une
 // e-commerce blocks: Hero pins and ScrollMarquee curtains up over it, the
 // category journey pins and crossfades, the video frame scales in and out
 // of view, and the editorial/product/campaign sections that follow all
-// carry real commerce (real routes, real mock product data, real verified
-// facts only) without ever reverting to a plain grid-and-banner layout.
+// carry real commerce (real routes, live WooCommerce product data) without
+// ever reverting to a plain grid-and-banner layout.
 // TopBar/Header/Footer/WelcomePopup are rendered once in the root layout.
 export default async function Home() {
   const t = await getTranslations("home.featuredProducts");
+  const featuredProducts = await getFeaturedProducts(8);
+  const spotlightProduct = featuredProducts[1] ?? featuredProducts[0];
 
   return (
     <>
@@ -46,14 +48,16 @@ export default async function Home() {
       <ScrollMarquee />
       <CategoryShowcase />
       <WhyBadyss />
-      <FeaturedProducts
-        heading={t("heading")}
-        products={mockFeaturedProducts}
-        ctaLabel={t("ctaLabel")}
-        ctaHref={routes.shop}
-      />
+      {featuredProducts.length > 0 ? (
+        <FeaturedProducts
+          heading={t("heading")}
+          products={featuredProducts.slice(0, 4)}
+          ctaLabel={t("ctaLabel")}
+          ctaHref={routes.shop}
+        />
+      ) : null}
       <VideoSection poster="/images/hero/desktop.png" posterAlt={HERO_ALT} />
-      <EditorialProductHybrid product={mockFeaturedProducts[1]} />
+      {spotlightProduct ? <EditorialProductHybrid product={spotlightProduct} /> : null}
       <EditorialCampaign />
       <LargeSizeCollection />
       <BrandValues />

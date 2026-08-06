@@ -372,7 +372,8 @@
     "whatsAppHint": "One last tap on WhatsApp to send your order to our team.",
     "teamWillContactPrefix": "Our team will contact you shortly at",
     "teamWillContactSuffix": "to confirm your order.",
-    "continueShopping": "Continue shopping"
+    "continueShopping": "Continue shopping",
+    "orderError": "Something went wrong while placing your order. Please try again or contact us directly."
   },
   "contact": {
     "metaTitle": "Contact",
