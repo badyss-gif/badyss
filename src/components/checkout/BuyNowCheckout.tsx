@@ -11,9 +11,13 @@ import { WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { QuantityStepper } from "@/components/commerce/QuantityStepper";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { CheckoutTrustBadges } from "./CheckoutTrustBadges";
+import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
+import { findVariantForSelection } from "@/features/products/variants";
 import { formatPrice } from "@/lib/format";
+import { getDiscountedUnitPrice, getQuantityDiscountPercent } from "@/lib/pricing";
 import { isValidMoroccanPhone } from "@/lib/validation";
 import { getWhatsAppOrderUrl } from "@/lib/whatsapp";
+import { submitOrder } from "@/lib/actions/orders";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -53,10 +57,6 @@ interface BuyNowCheckoutProps {
   product: Product;
   initialQuantity: number;
   initialAttributes: Record<string, string>;
-}
-
-function generateReference(): string {
-  return `BDY-${Date.now().toString(36).toUpperCase()}`;
 }
 
 function validate(values: FormValues, t: ReturnType<typeof useTranslations<"buyNow">>): FormErrors {
@@ -120,31 +120,45 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
   const [reference, setReference] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const unitPrice = product.price.amount;
+  const resolvedVariant = findVariantForSelection(product, initialAttributes);
+  const effectivePrice = resolvedVariant?.price ?? product.price;
+  const effectiveStock = resolvedVariant?.stock ?? product.stock;
+  const unitPrice = getDiscountedUnitPrice(effectivePrice.amount, quantity);
   const totalPrice = unitPrice * quantity;
+  const discountPercent = getQuantityDiscountPercent(quantity);
   const attributesEntries = Object.entries(initialAttributes);
-  const isOutOfStock = product.stock.status === "out-of-stock";
+  const isOutOfStock = effectiveStock.status === "out-of-stock";
 
   function updateField(field: keyof FormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
   }
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const nextErrors = validate(values, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
+    setSubmitError(null);
     setStatus("submitting");
-    // No real order-creation endpoint exists yet — this delay is purely
-    // perceived-processing polish (matches ContactForm's same convention),
-    // not a real network call.
-    window.setTimeout(() => {
-      setReference(generateReference());
+    const result = await submitOrder({
+      fullName: values.fullName,
+      phone: values.phone,
+      address: values.address,
+      city: values.city,
+      items: [{ productId: product.id, variationId: resolvedVariant?.id, quantity }],
+    });
+
+    if (result.ok) {
+      setReference(result.orderNumber);
       setStatus("success");
-    }, 700);
+    } else {
+      setStatus("idle");
+      setSubmitError(t("orderError"));
+    }
   }
 
   if (status === "success") {
@@ -154,7 +168,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
       attributes: initialAttributes,
       quantity,
       totalPrice,
-      currency: product.price.currency,
+      currency: effectivePrice.currency,
       customerName: values.fullName,
       phone: values.phone,
       address: values.address,
@@ -175,12 +189,12 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
 
         <div className="w-full border border-border p-6 text-left">
           <div className="flex gap-4">
-            <ProductImage image={product.images[0] ?? null} className="w-20 shrink-0" />
+            <ProductImage image={resolvedVariant?.image ?? product.images[0] ?? null} className="w-20 shrink-0" />
             <div className="flex-1">
               <OrderSummaryLine product={product} quantity={quantity} attributes={attributesEntries} />
             </div>
             <span className="whitespace-nowrap text-sm font-medium text-foreground">
-              {formatPrice(totalPrice, product.price.currency)}
+              {formatPrice(totalPrice, effectivePrice.currency)}
             </span>
           </div>
           <div className="mt-4 flex flex-col gap-0.5 border-t border-border pt-4 text-sm text-muted-foreground">
@@ -284,6 +298,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
         <Button type="submit" size="lg" loading={status === "submitting"} disabled={isOutOfStock} className="w-full justify-center">
           {t("confirmOrder")}
         </Button>
+        {submitError ? <p className="-mt-3 text-sm text-error">{submitError}</p> : null}
 
         <div className="border-t border-border pt-6">
           <CheckoutTrustBadges />
@@ -293,7 +308,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
       <aside className="order-1 h-max border border-border p-6 md:sticky md:top-32 md:order-2">
         <h2 className="font-display text-lg font-extrabold">{tCheckout("yourOrder")}</h2>
         <div className="mt-4 flex gap-4">
-          <ProductImage image={product.images[0] ?? null} className="w-24 shrink-0" />
+          <ProductImage image={resolvedVariant?.image ?? product.images[0] ?? null} className="w-24 shrink-0" />
           <div className="flex-1">
             <OrderSummaryLine product={product} quantity={quantity} attributes={attributesEntries} />
             <div className="mt-3">
@@ -303,9 +318,13 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-border pt-4 text-sm">
           <span className="text-muted-foreground">{t("total")}</span>
-          <span className="font-medium text-foreground">{formatPrice(totalPrice, product.price.currency)}</span>
+          <span className="font-medium text-foreground">{formatPrice(totalPrice, effectivePrice.currency)}</span>
         </div>
+        {discountPercent > 0 ? (
+          <p className="mt-1 text-xs text-accent">{tCheckout("quantityDiscountApplied", { percent: discountPercent })}</p>
+        ) : null}
         <p className="mt-2 text-xs text-muted-foreground">{tCheckout("shippingSeparately")}</p>
+        <ReassuranceStrip className="mt-4 flex-col items-start gap-2 border-t border-border pt-4" />
         <Link
           href={routes.product(product.slug)}
           className="mt-4 block text-center text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

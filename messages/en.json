@@ -243,6 +243,10 @@
     "followUs": "Follow us",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
+    "quantityDiscountHeading": "Buy more, save more",
+    "quantityDiscountQty": "Qty {n}",
+    "quantityDiscountTotal": "Total: {total}",
+    "quantityDiscountSave": "save {percent}%",
     "faqQ1": "How do I choose my size?",
     "faqA1": "Check our size guide before ordering, or contact us with your measurements for advice.",
     "faqQ2": "How do I care for this piece?",
@@ -256,7 +260,12 @@
     "returnsInfoQuestion": "Returns & exchanges",
     "returnsInfoAnswer": "A piece doesn't fit? Our returns policy is detailed on its dedicated page.",
     "sizeGuideInfoQuestion": "Size guide",
-    "sizeGuideInfoAnswer": "Check our size guide to pick the ideal fit before ordering."
+    "sizeGuideInfoAnswer": "Check our size guide to pick the ideal fit before ordering.",
+    "sizeGuideCta": "Size guide",
+    "sizeGuideAria": "Open size guide",
+    "closeSizeGuide": "Close size guide",
+    "sizeGuideAvailableSizes": "Sizes available for this item are highlighted.",
+    "viewFullSizeGuide": "View the full size guide"
   },
   "shop": {
     "metaTitle": "Shop",
@@ -333,7 +342,8 @@
     "editCart": "Edit cart",
     "stepInformation": "Information",
     "stepPayment": "Payment",
-    "trustConfidential": "Confidential information"
+    "trustConfidential": "Confidential information",
+    "quantityDiscountApplied": "{percent}% quantity discount applied"
   },
   "buyNow": {
     "metaTitle": "Buy Now",
@@ -726,5 +736,12 @@
     "styleUrbain": "Urban BADYSS style.",
     "tshirtPremiumUrbain": "Premium BADYSS t-shirt worn in an urban setting.",
     "tshirtPremium": "Premium BADYSS t-shirt."
+  },
+  "reassurance": {
+    "exchange": "Easy exchange",
+    "refund": "Refund",
+    "support": "Responsive customer service",
+    "delivery": "Nationwide delivery across Morocco",
+    "cod": "Cash on delivery"
   }
 }

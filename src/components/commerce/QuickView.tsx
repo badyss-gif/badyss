@@ -11,7 +11,9 @@ import { QuantityStepper } from "./QuantityStepper";
 import { WishlistButton } from "./WishlistButton";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/features/cart/CartContext";
+import { findVariantForSelection } from "@/features/products/variants";
 import { formatPrice } from "@/lib/format";
+import { getDiscountedUnitPrice } from "@/lib/pricing";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
@@ -51,17 +53,22 @@ export function QuickView({ product, onClose }: QuickViewProps) {
 
   const variationAttributes = product.attributes.filter((attribute) => attribute.usedForVariations);
   const missingAttribute = variationAttributes.find((attribute) => !selected[attribute.name]);
-  const isOutOfStock = product.stock.status === "out-of-stock";
-  const availability = stockLabel[product.stock.status];
+  const resolvedVariant = findVariantForSelection(product, selected);
+  const effectivePrice = resolvedVariant?.price ?? product.price;
+  const effectiveStock = resolvedVariant?.stock ?? product.stock;
+  const isOutOfStock = effectiveStock.status === "out-of-stock";
+  const availability = stockLabel[effectiveStock.status];
 
   function handleAddToCart() {
     if (!product || missingAttribute || isOutOfStock) return;
     addItem({
       productId: product.id,
+      variationId: resolvedVariant?.id,
       slug: product.slug,
       name: product.name,
-      image: product.images[0] ?? null,
-      unitPrice: product.price.amount,
+      image: resolvedVariant?.image ?? product.images[0] ?? null,
+      basePrice: effectivePrice.amount,
+      unitPrice: getDiscountedUnitPrice(effectivePrice.amount, quantity),
       quantity,
       attributes: Object.keys(selected).length > 0 ? selected : undefined,
     });
@@ -119,12 +126,12 @@ export function QuickView({ product, onClose }: QuickViewProps) {
                     {product.name}
                   </h2>
                   <div className="mt-2 flex items-center gap-3">
-                    <span className={product.price.onSale ? "text-error" : "text-foreground"}>
-                      {formatPrice(product.price.amount, product.price.currency)}
+                    <span className={effectivePrice.onSale ? "text-error" : "text-foreground"}>
+                      {formatPrice(effectivePrice.amount, effectivePrice.currency)}
                     </span>
-                    {product.price.onSale && product.price.regularAmount ? (
+                    {effectivePrice.onSale && effectivePrice.regularAmount ? (
                       <span className="text-muted-foreground line-through">
-                        {formatPrice(product.price.regularAmount, product.price.currency)}
+                        {formatPrice(effectivePrice.regularAmount, effectivePrice.currency)}
                       </span>
                     ) : null}
                   </div>

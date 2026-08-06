@@ -22,17 +22,25 @@ Utilisé sur : Mentions légales, Politique de confidentialité, CGV.
 
 ## 2. Communication client
 
-- [ ] **Numéro WhatsApp Business réel** — `NEXT_PUBLIC_WHATSAPP_NUMBER` dans `.env.local`.
-      Le bouton flottant WhatsApp et tous les liens WhatsApp du site sont entièrement développés
-      et testés ; ils restent simplement invisibles tant que cette variable n'est pas renseignée.
+- [x] **Numéro WhatsApp Business réel** — confirmé par le client (2026-08-01) : `212707003517`,
+      renseigné dans `NEXT_PUBLIC_WHATSAPP_NUMBER` (`.env.local`). Numéro de service client
+      principal, également `siteConfig.contact.phone` (`src/config/site.ts`).
+- [x] **Numéros de service client** — confirmés par le client (2026-08-01) : `0707003517`,
+      `0681060555`, `0627999736` (`siteConfig.contact.serviceNumbers`), affichés ensemble sur les
+      pages Contact et Service client.
 - [ ] Horaires de disponibilité du service client (page Contact)
 - [ ] Adresse physique / existence d'un point de vente (page Contact — actuellement présenté comme
       boutique 100% en ligne)
 
 ## 3. Commande, paiement et livraison
 
-- [ ] Liste définitive des moyens de paiement acceptés (CGV, page Commande)
-- [ ] Zones de livraison couvertes
+- [x] **Paiement à la livraison (COD)** et **livraison partout au Maroc** — confirmés par le
+      client (2026-08-01), affichés dans le bandeau de réassurance (accueil, footer, contact,
+      commande). Remplace la précédente prudence éditoriale (contradiction relevée sur les pages
+      `/info/shipping/` et `/info/payments/` du site WooCommerce existant, contenu de démo non
+      remplacé) — ces deux pages restent elles-mêmes à corriger séparément (voir ci-dessous).
+- [ ] Liste définitive des moyens de paiement acceptés au-delà du COD (CGV, page Commande)
+- [ ] Zones de livraison couvertes (au-delà de la confirmation générale "partout au Maroc")
 - [ ] Délais de livraison moyens par zone
 - [ ] Grille tarifaire de livraison
 - [ ] **Seuil de livraison gratuite** (le cas échéant) — `siteConfig.shipping.freeShippingThreshold`

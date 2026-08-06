@@ -29,7 +29,7 @@ function categoriesFor(...slugs: string[]): ProductCategory[] {
   });
 }
 
-export const mockProducts: Product[] = [
+const rawMockProducts: Array<Omit<Product, "sku" | "type" | "featured">> = [
   {
     id: 1,
     slug: "ensemble-sport-exemple",
@@ -202,6 +202,13 @@ export const mockProducts: Product[] = [
     attributes: [{ name: "Taille", options: ["38", "40", "42"], usedForVariations: true }],
   },
 ];
+
+export const mockProducts: Product[] = rawMockProducts.map((product) => ({
+  ...product,
+  sku: "",
+  type: "simple",
+  featured: false,
+}));
 
 /** Kept for existing homepage sections that ask for a small curated slice. */
 export const mockFeaturedProducts: Product[] = mockProducts.slice(0, 4);

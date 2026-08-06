@@ -13,6 +13,7 @@ import { LargeSizeCollection } from "@/components/sections/LargeSizeCollection";
 import { BrandValues } from "@/components/sections/BrandValues";
 import { Lookbook } from "@/components/sections/Lookbook";
 import { CustomerBenefits } from "@/components/sections/CustomerBenefits";
+import { ReassuranceSection } from "@/components/sections/ReassuranceSection";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Community } from "@/components/sections/Community";
 import { FaqPreview } from "@/components/sections/FaqPreview";
@@ -63,6 +64,7 @@ export default async function Home() {
       <Testimonials />
       <Community />
       <FaqPreview />
+      <ReassuranceSection />
       <Newsletter />
     </>
   );

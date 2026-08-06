@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
     // assets (see docs/PENDING-BUSINESS-INFO.md §4 / image upscale pass)
     // never ship to the browser at their full source resolution.
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "admin-badyss.com",
+        pathname: "/wp-content/uploads/**",
+      },
+    ],
   },
 };
 

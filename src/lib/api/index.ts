@@ -17,7 +17,13 @@
 
 import * as wooProducts from "@/lib/woocommerce/products";
 import * as wooCategories from "@/lib/woocommerce/categories";
-import { mapWooCommerceCategory, mapWooCommerceProduct } from "@/lib/woocommerce/transform";
+import * as wooOrders from "@/lib/woocommerce/orders";
+import {
+  mapWooCommerceCategory,
+  mapWooCommerceOrder,
+  mapWooCommerceProduct,
+  mapWooCommerceVariation,
+} from "@/lib/woocommerce/transform";
 import { isWooCommerceConfigured } from "@/config/server-env";
 import {
   mockProducts,
@@ -28,7 +34,9 @@ import {
   getMockCategoryBySlug,
   getMockRelatedProducts,
 } from "@/lib/mock-data/products";
+import type { CreateOrderInput, Order } from "@/types/order";
 import type { Product, ProductCategory } from "@/types/product";
+import type { WooCommerceAddress, WooCommerceCreateOrderPayload } from "@/types/woocommerce";
 
 export { wordPressFetch } from "@/lib/wordpress/client";
 
@@ -36,16 +44,33 @@ export async function getProducts(params?: {
   category?: string;
   perPage?: number;
   page?: number;
+  featured?: boolean;
 }): Promise<Product[]> {
   if (!isWooCommerceConfigured()) return mockProducts;
   const raw = await wooProducts.getProducts(params);
   return raw.map(mapWooCommerceProduct);
 }
 
+/**
+ * Attaches real WooCommerce variation data (price/stock per size or color
+ * combo) to a variable product — a second API call, so callers only pay for
+ * it on single-product views (product page, Buy Now), never on list pages.
+ */
+async function withVariants(product: Product, rawId: number, variationIds: number[]): Promise<Product> {
+  if (variationIds.length === 0) return product;
+  const rawVariations = await wooProducts.getProductVariations(rawId);
+  return {
+    ...product,
+    variants: rawVariations.map((variation) => mapWooCommerceVariation(variation, product.price, product.stock)),
+  };
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!isWooCommerceConfigured()) return getMockProductBySlug(slug);
   const raw = await wooProducts.getProductBySlug(slug);
-  return raw ? mapWooCommerceProduct(raw) : null;
+  if (!raw) return null;
+  const product = mapWooCommerceProduct(raw);
+  return withVariants(product, raw.id, raw.variations);
 }
 
 export async function searchProducts(query: string, params?: { perPage?: number }): Promise<Product[]> {
@@ -91,4 +116,65 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
     }
   }
   return Array.from(seen.values()).slice(0, limit);
+}
+
+/**
+ * Homepage "featured" rail — prefers products explicitly marked `featured`
+ * in WooCommerce; if the merchant hasn't flagged any yet, falls back to the
+ * most recent products so the section is never empty on a small catalog.
+ */
+export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
+  if (!isWooCommerceConfigured()) return mockProducts.slice(0, limit);
+  const featured = await getProducts({ featured: true, perPage: limit });
+  if (featured.length > 0) return featured;
+  return getProducts({ perPage: limit });
+}
+
+function splitName(fullName: string): { firstName: string; lastName: string } {
+  const trimmed = fullName.trim().replace(/\s+/g, " ");
+  const spaceIndex = trimmed.indexOf(" ");
+  if (spaceIndex === -1) return { firstName: trimmed, lastName: "" };
+  return { firstName: trimmed.slice(0, spaceIndex), lastName: trimmed.slice(spaceIndex + 1) };
+}
+
+/**
+ * Creates a real WooCommerce order — appears immediately in WordPress →
+ * WooCommerce → Orders. Cash-on-delivery is the only payment method wired
+ * up (matches how BADYSS actually takes orders today, see BuyNowCheckout's
+ * WhatsApp handoff); there is no mock fallback here on purpose — a "fake"
+ * successful order would mislead a paying customer, so this throws if no
+ * live WooCommerce connection exists rather than pretending to succeed.
+ */
+export async function createOrder(input: CreateOrderInput): Promise<Order> {
+  if (!isWooCommerceConfigured()) {
+    throw new Error("Order creation requires a live WooCommerce connection.");
+  }
+  const { firstName, lastName } = splitName(input.customer.fullName);
+  const address: WooCommerceAddress = {
+    first_name: firstName,
+    last_name: lastName || firstName,
+    address_1: input.customer.address,
+    city: input.customer.city,
+    country: "MA",
+    phone: input.customer.phone,
+    email: input.customer.email || undefined,
+  };
+
+  const payload: WooCommerceCreateOrderPayload = {
+    payment_method: "cod",
+    payment_method_title: "Paiement à la livraison",
+    set_paid: false,
+    status: "processing",
+    billing: address,
+    shipping: address,
+    line_items: input.items.map((item) => ({
+      product_id: item.productId,
+      variation_id: item.variationId,
+      quantity: item.quantity,
+    })),
+    customer_note: input.note,
+  };
+
+  const raw = await wooOrders.createOrder(payload);
+  return mapWooCommerceOrder(raw);
 }

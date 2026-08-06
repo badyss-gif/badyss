@@ -243,6 +243,10 @@
     "followUs": "Suivez-nous",
     "decreaseQuantity": "Diminuer la quantité",
     "increaseQuantity": "Augmenter la quantité",
+    "quantityDiscountHeading": "Achetez plus, économisez plus",
+    "quantityDiscountQty": "Qté {n}",
+    "quantityDiscountTotal": "Total : {total}",
+    "quantityDiscountSave": "économisez {percent}%",
     "faqQ1": "Comment choisir ma taille ?",
     "faqA1": "Consultez notre guide des tailles avant de commander, ou contactez-nous avec vos mensurations pour être conseillé.",
     "faqQ2": "Comment entretenir cette pièce ?",
@@ -256,7 +260,12 @@
     "returnsInfoQuestion": "Retours & échanges",
     "returnsInfoAnswer": "Une pièce ne convient pas ? Notre politique de retour est détaillée sur la page dédiée.",
     "sizeGuideInfoQuestion": "Guide des tailles",
-    "sizeGuideInfoAnswer": "Consultez notre guide des tailles pour choisir la coupe idéale avant de commander."
+    "sizeGuideInfoAnswer": "Consultez notre guide des tailles pour choisir la coupe idéale avant de commander.",
+    "sizeGuideCta": "Guide des tailles",
+    "sizeGuideAria": "Ouvrir le guide des tailles",
+    "closeSizeGuide": "Fermer le guide des tailles",
+    "sizeGuideAvailableSizes": "Tailles disponibles pour cet article en surbrillance.",
+    "viewFullSizeGuide": "Voir le guide des tailles complet"
   },
   "shop": {
     "metaTitle": "Boutique",
@@ -333,7 +342,8 @@
     "editCart": "Modifier le panier",
     "stepInformation": "Informations",
     "stepPayment": "Paiement",
-    "trustConfidential": "Informations confidentielles"
+    "trustConfidential": "Informations confidentielles",
+    "quantityDiscountApplied": "Remise quantité de {percent}% appliquée"
   },
   "buyNow": {
     "metaTitle": "Acheter maintenant",
@@ -726,5 +736,12 @@
     "styleUrbain": "Style urbain BADYSS.",
     "tshirtPremiumUrbain": "T-shirt premium BADYSS porté en contexte urbain.",
     "tshirtPremium": "T-shirt premium BADYSS."
+  },
+  "reassurance": {
+    "exchange": "Échange facile",
+    "refund": "Remboursement",
+    "support": "Service client réactif",
+    "delivery": "Livraison partout au Maroc",
+    "cod": "Paiement à la livraison"
   }
 }

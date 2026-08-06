@@ -12,7 +12,15 @@ export const siteConfig = {
   currency: "MAD", // PROPOSED — matches business context (Morocco), not yet explicitly confirmed
   country: "MA", // PROPOSED
   contact: {
-    phone: "0627999736", // VERIFIED — appears consistently on the live site (header + contact page)
+    // VERIFIED — provided directly by the client (2026-08-01). Primary
+    // number used for every single-number "tel:" mention across the site;
+    // also the main WhatsApp support line (see config/env.ts).
+    phone: "0707003517",
+    // VERIFIED — the client's three customer-service lines, provided
+    // directly (2026-08-01). Shown together on the Contact and Service
+    // client pages; `phone` above (the first entry) is what single-number
+    // mentions elsewhere on the site use.
+    serviceNumbers: ["0707003517", "0681060555", "0627999736"],
   },
   social: {
     facebook: "https://www.facebook.com/profile.php?id=61584535598750", // VERIFIED — provided directly

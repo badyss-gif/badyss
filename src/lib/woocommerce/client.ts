@@ -7,6 +7,8 @@ interface WooCommerceRequestOptions {
   searchParams?: Record<string, string | number | boolean | undefined>;
   /** Next.js ISR revalidation window in seconds, or `false` to opt out of caching. */
   revalidate?: number | false;
+  method?: "GET" | "POST" | "PUT";
+  body?: unknown;
 }
 
 /**
@@ -29,15 +31,24 @@ export async function wooCommerceFetch<T>(
   }
 
   const authHeader = `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64")}`;
+  const method = options.method ?? "GET";
+  // Mutations must never be cached/ISR'd — only GET requests opt into `next.revalidate`.
+  const cacheOptions = method === "GET" ? { next: { revalidate: options.revalidate ?? 3600 } } : { cache: "no-store" as const };
 
   const response = await fetch(url.toString(), {
-    headers: { Authorization: authHeader },
-    next: { revalidate: options.revalidate ?? 3600 },
+    method,
+    headers: {
+      Authorization: authHeader,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+    ...cacheOptions,
   });
 
   if (!response.ok) {
+    const detail = await response.text().catch(() => "");
     throw new Error(
-      `WooCommerce API request failed: ${response.status} ${response.statusText} (${endpoint})`
+      `WooCommerce API request failed: ${response.status} ${response.statusText} (${endpoint})${detail ? ` — ${detail}` : ""}`
     );
   }
 

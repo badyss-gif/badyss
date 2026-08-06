@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { CheckoutProgress } from "./CheckoutProgress";
 import { CheckoutTrustBadges } from "./CheckoutTrustBadges";
+import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
 import { formatPrice } from "@/lib/format";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
@@ -161,6 +162,7 @@ export function CheckoutClient() {
             <span className="font-medium text-foreground">{formatPrice(cart.subtotal, cart.currency)}</span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{t("shippingSeparately")}</p>
+          <ReassuranceStrip className="mt-4 flex-col items-start gap-2 border-t border-border pt-4" />
           <Link
             href={routes.cart}
             className="mt-4 block text-center text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

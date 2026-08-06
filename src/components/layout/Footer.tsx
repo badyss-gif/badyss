@@ -5,6 +5,7 @@ import { Logo } from "@/components/ui/Logo";
 import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { getSocialLinks } from "@/lib/social";
+import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
 
 const socialLinks = getSocialLinks({ includeWhatsApp: true });
 
@@ -58,11 +59,7 @@ export async function Footer() {
     },
   ];
 
-  // Only fully verified facts (docs/BADYSS-SITE-BLUEPRINT.md §17). The two
-  // previously-shown claims ("Paiement à la livraison", "Livraison partout au
-  // Maroc") stay dropped entirely rather than shown as unconfirmed:
-  // PROJECT_STATUS.md documents the live site's own shipping/payments pages
-  // contradict them.
+  // Only fully verified facts (docs/BADYSS-SITE-BLUEPRINT.md §17).
   const reassurance = [
     { label: t("serviceClientDedie"), href: routes.contact },
     { label: t("grandesTaillesDisponibles"), href: routes.categories.grandesTailles },
@@ -81,6 +78,10 @@ export async function Footer() {
             {item.label}
           </Link>
         ))}
+      </Container>
+
+      <Container className="border-b border-border py-6">
+        <ReassuranceStrip className="justify-center gap-x-8 gap-y-3 text-center" />
       </Container>
 
       <Container className="grid grid-cols-2 gap-8 py-16 sm:grid-cols-4">

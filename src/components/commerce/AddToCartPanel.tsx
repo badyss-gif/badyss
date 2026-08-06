@@ -4,13 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Ruler } from "lucide-react";
 import { useCart } from "@/features/cart/CartContext";
+import { findVariantForSelection } from "@/features/products/variants";
 import { QuantityStepper } from "./QuantityStepper";
+import { QuantityDiscountTiers } from "./QuantityDiscountTiers";
 import { WishlistButton } from "./WishlistButton";
 import { SocialShare } from "./SocialShare";
+import { SizeGuideDrawer } from "./SizeGuideDrawer";
 import { Button } from "@/components/ui/Button";
 import { FaqAccordion } from "@/components/faq/FaqAccordion";
 import { formatPrice } from "@/lib/format";
+import { getDiscountedUnitPrice, getQuantityDiscountPercent } from "@/lib/pricing";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 import { publicEnv } from "@/config/env";
@@ -34,6 +39,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [buyNowPending, setBuyNowPending] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const stockLabel: Partial<Record<Product["stock"]["status"], string>> = {
     "out-of-stock": t("outOfStock"),
@@ -80,19 +86,28 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   ];
 
   const variationAttributes = product.attributes.filter((attribute) => attribute.usedForVariations);
+  const sizeAttribute = variationAttributes.find((attribute) => attribute.name === "Taille" || attribute.name === "Tailles");
   const missingAttribute = variationAttributes.find((attribute) => !selected[attribute.name]);
-  const isOutOfStock = product.stock.status === "out-of-stock";
-  const availability = stockLabel[product.stock.status];
+  // Real per-variation price/stock (e.g. this size specifically) once one is
+  // fully selected — falls back to the parent product's own price/stock
+  // otherwise (simple products, or before a variation is fully chosen).
+  const resolvedVariant = findVariantForSelection(product, selected);
+  const effectivePrice = resolvedVariant?.price ?? product.price;
+  const effectiveStock = resolvedVariant?.stock ?? product.stock;
+  const isOutOfStock = effectiveStock.status === "out-of-stock";
+  const availability = stockLabel[effectiveStock.status];
   const isDisabled = isOutOfStock || Boolean(missingAttribute);
 
   function handleAddToCart() {
     if (isDisabled) return;
     addItem({
       productId: product.id,
+      variationId: resolvedVariant?.id,
       slug: product.slug,
       name: product.name,
-      image: product.images[0] ?? null,
-      unitPrice: product.price.amount,
+      image: resolvedVariant?.image ?? product.images[0] ?? null,
+      basePrice: effectivePrice.amount,
+      unitPrice: getDiscountedUnitPrice(effectivePrice.amount, quantity),
       quantity,
       attributes: Object.keys(selected).length > 0 ? selected : undefined,
     });
@@ -124,12 +139,12 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
           {product.name}
         </h1>
         <div className="mt-3 flex items-center gap-3 text-lg">
-          <span className={product.price.onSale ? "text-error" : "text-foreground"}>
-            {formatPrice(product.price.amount, product.price.currency)}
+          <span className={effectivePrice.onSale ? "text-error" : "text-foreground"}>
+            {formatPrice(effectivePrice.amount, effectivePrice.currency)}
           </span>
-          {product.price.onSale && product.price.regularAmount ? (
+          {effectivePrice.onSale && effectivePrice.regularAmount ? (
             <span className="text-muted-foreground line-through">
-              {formatPrice(product.price.regularAmount, product.price.currency)}
+              {formatPrice(effectivePrice.regularAmount, effectivePrice.currency)}
             </span>
           ) : null}
         </div>
@@ -163,12 +178,43 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         </div>
       ))}
 
+      {/* Standalone trigger, not nested inside the attribute loop above —
+          shown on every product regardless of whether this particular one
+          has a "Taille" variation attribute (several mock products only
+          vary by "Couleur"), so the size guide stays reachable everywhere. */}
+      <button
+        type="button"
+        onClick={() => setSizeGuideOpen(true)}
+        aria-label={t("sizeGuideAria")}
+        className="-mt-2 inline-flex w-fit items-center gap-1.5 text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+      >
+        <Ruler className="h-3.5 w-3.5" aria-hidden />
+        {t("sizeGuideCta")}
+      </button>
+
+      <QuantityDiscountTiers
+        unitPrice={effectivePrice.amount}
+        currency={effectivePrice.currency}
+        selectedQuantity={quantity}
+        onSelect={setQuantity}
+      />
+
       <div className="flex items-center gap-3">
         <QuantityStepper quantity={quantity} onChange={setQuantity} />
         <WishlistButton productId={product.id} productName={product.name} />
       </div>
       {missingAttribute ? (
         <p className="text-xs text-error">{t("selectOption", { attribute: missingAttribute.name })}</p>
+      ) : null}
+      {quantity > 1 ? (
+        <p className="-mt-2 text-xs text-muted-foreground">
+          {t("quantityDiscountTotal", {
+            total: formatPrice(getDiscountedUnitPrice(effectivePrice.amount, quantity) * quantity, effectivePrice.currency) ?? "",
+          })}
+          {getQuantityDiscountPercent(quantity) > 0
+            ? ` · ${t("quantityDiscountSave", { percent: getQuantityDiscountPercent(quantity) })}`
+            : ""}
+        </p>
       ) : null}
 
       {/* Buy Now is the prominent (dark/primary) action — the fastest path
@@ -206,7 +252,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
           clearly at this size. */}
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-border bg-surface p-4 md:hidden">
         <span className="shrink-0 text-base font-medium text-foreground">
-          {formatPrice(product.price.amount, product.price.currency)}
+          {formatPrice(effectivePrice.amount, effectivePrice.currency)}
         </span>
         <Button variant="secondary" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center px-3">
           {ctaLabelCompact}
@@ -215,6 +261,12 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
           {t("buyShort")}
         </Button>
       </div>
+
+      <SizeGuideDrawer
+        open={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        sizes={sizeAttribute?.options ?? []}
+      />
     </div>
   );
 }

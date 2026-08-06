@@ -62,8 +62,18 @@ export function HeroSection() {
   const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ["start start", "end start"] });
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.14]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-  const cueOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  // ScrollMarquee's curtain (`-mt-[30vh]` against this 140vh/100vh sticky
+  // pin) starts scrolling into view at scrollYProgress ≈ 0.071 — well before
+  // the pin itself releases at ≈0.286 — because a sticky element's static
+  // document footprint (what the next sibling positions against) is
+  // unaffected by the pin holding it visually in place. The hero's own
+  // bottom-anchored text sits right where that curtain enters from, so it
+  // must be fully faded out before 0.071 or the still-legible text collides
+  // with the rising curtain text. Fading it out here, well ahead of that
+  // deadline, keeps the transition reading as "hero recedes, then curtain
+  // rises" instead of the two overlapping.
+  const textOpacity = useTransform(scrollYProgress, [0, 0.06], [1, 0]);
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.06], [1, 0]);
 
   return (
     <div ref={wrapperRef} className="relative h-[140vh]">
@@ -98,52 +108,65 @@ export function HeroSection() {
           <p className="text-xs uppercase tracking-[0.3em]">{t("frameLabel")}</p>
         </div>
 
+        {/* Two nested motion.divs, not one doing both jobs — a single
+            element mixing variant-driven `animate="visible"` with a
+            style-prop motion value for the *same kind* of channel (opacity)
+            is unreliable: the `y` transform channel kept updating every
+            frame, but `opacity` silently stuck at 1 and never reflected the
+            scroll-linked fade (confirmed via direct MotionValue
+            subscription vs. rendered DOM style — the JS value reached 0
+            correctly, the paint never did). Splitting the scroll-fade
+            (outer, no variants) from the entrance stagger (inner, no style
+            motion values) removes the conflict entirely. */}
         <motion.div
-          initial={shouldReduceMotion ? undefined : "hidden"}
-          animate={shouldReduceMotion ? undefined : "visible"}
-          variants={shouldReduceMotion ? undefined : contentVariants}
           style={shouldReduceMotion ? undefined : { y: textY, opacity: textOpacity }}
           className="absolute inset-x-0 bottom-0 z-10 px-6 pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24"
         >
-          <motion.p
-            variants={shouldReduceMotion ? undefined : itemVariants}
-            className="text-xs uppercase tracking-[0.3em] text-white/70"
-          >
-            {t("eyebrow")}
-          </motion.p>
-
-          <motion.h1
-            variants={shouldReduceMotion ? undefined : itemVariants}
-            className="mt-4 max-w-lg font-display font-extrabold leading-[1.08] tracking-tight text-white text-display-md sm:text-display-lg lg:max-w-xl lg:text-display-xl"
-          >
-            {t("headline")}
-          </motion.h1>
-
-          <motion.p
-            variants={shouldReduceMotion ? undefined : itemVariants}
-            className="mt-5 max-w-xs text-sm text-white/80 sm:max-w-sm sm:text-base"
-          >
-            {t("subtext")}
-          </motion.p>
-
           <motion.div
-            variants={shouldReduceMotion ? undefined : itemVariants}
-            className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4"
+            initial={shouldReduceMotion ? undefined : "hidden"}
+            animate={shouldReduceMotion ? undefined : "visible"}
+            variants={shouldReduceMotion ? undefined : contentVariants}
           >
-            <MagneticButton>
-              <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90">
-                {t("ctaPrimary")}
-              </LinkButton>
-            </MagneticButton>
-            <Link
-              href={routes.categories.grandesTailles}
-              className="group inline-flex items-center gap-1.5 text-sm font-medium text-white"
+            <motion.p
+              variants={shouldReduceMotion ? undefined : itemVariants}
+              className="text-xs uppercase tracking-[0.3em] text-white/70"
             >
-              <span className="border-b border-white/40 pb-0.5 transition-colors group-hover:border-white">
-                {t("ctaSecondary")}
-              </span>
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
+              {t("eyebrow")}
+            </motion.p>
+
+            <motion.h1
+              variants={shouldReduceMotion ? undefined : itemVariants}
+              className="mt-4 max-w-lg font-display font-extrabold leading-[1.08] tracking-tight text-white text-display-md sm:text-display-lg lg:max-w-xl lg:text-display-xl"
+            >
+              {t("headline")}
+            </motion.h1>
+
+            <motion.p
+              variants={shouldReduceMotion ? undefined : itemVariants}
+              className="mt-5 max-w-xs text-sm text-white/80 sm:max-w-sm sm:text-base"
+            >
+              {t("subtext")}
+            </motion.p>
+
+            <motion.div
+              variants={shouldReduceMotion ? undefined : itemVariants}
+              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4"
+            >
+              <MagneticButton>
+                <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90">
+                  {t("ctaPrimary")}
+                </LinkButton>
+              </MagneticButton>
+              <Link
+                href={routes.categories.grandesTailles}
+                className="group inline-flex items-center gap-1.5 text-sm font-medium text-white"
+              >
+                <span className="border-b border-white/40 pb-0.5 transition-colors group-hover:border-white">
+                  {t("ctaSecondary")}
+                </span>
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            </motion.div>
           </motion.div>
         </motion.div>
 

@@ -32,13 +32,19 @@ export type StockStatus = "in-stock" | "out-of-stock" | "backorder";
 
 export interface ProductStock {
   status: StockStatus;
+  /** Only meaningful when `manageStock` is true — WooCommerce tracks a numeric quantity for this product/variation. */
+  quantity?: number | null;
+  manageStock?: boolean;
 }
 
 export interface ProductVariant {
   id: number;
+  sku: string;
+  /** Empty object = WooCommerce's "matches any option" wildcard variation. */
   attributes: Record<string, string>;
   price: ProductPrice;
   stock: ProductStock;
+  image: ProductImage | null;
 }
 
 export interface Product {
@@ -47,10 +53,13 @@ export interface Product {
   name: string;
   description: string;
   shortDescription: string;
+  sku: string;
   price: ProductPrice;
   stock: ProductStock;
   images: ProductImage[];
   categories: ProductCategory[];
   attributes: ProductAttribute[];
+  type: "simple" | "variable" | "grouped" | "external";
+  featured: boolean;
   variants?: ProductVariant[];
 }

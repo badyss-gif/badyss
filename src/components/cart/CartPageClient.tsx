@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { ShippingProgressBar } from "./ShippingProgressBar";
 import { CartUpsell } from "./CartUpsell";
 import { formatPrice } from "@/lib/format";
+import { getQuantityDiscountPercent } from "@/lib/pricing";
 import { routes } from "@/config/routes";
 import type { Product } from "@/types/product";
 
@@ -58,6 +59,11 @@ export function CartPageClient({ products }: { products: Product[] }) {
                     </Link>
                     {item.attributes ? (
                       <p className="mt-1 text-sm text-muted-foreground">{Object.values(item.attributes).join(" · ")}</p>
+                    ) : null}
+                    {getQuantityDiscountPercent(item.quantity) > 0 ? (
+                      <span className="mt-1 inline-block rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold tracking-wide text-accent-foreground">
+                        -{getQuantityDiscountPercent(item.quantity)}%
+                      </span>
                     ) : null}
                   </div>
                   <span className="whitespace-nowrap text-foreground">

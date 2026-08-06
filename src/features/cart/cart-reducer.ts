@@ -1,3 +1,4 @@
+import { getDiscountedUnitPrice } from "@/lib/pricing";
 import type { Cart, CartItem } from "@/types/cart";
 
 export type CartAction =
@@ -26,11 +27,11 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
     case "ADD_ITEM": {
       const existing = state.items.find((item) => itemKey(item) === itemKey(action.item));
       const items = existing
-        ? state.items.map((item) =>
-            itemKey(item) === itemKey(action.item)
-              ? { ...item, quantity: item.quantity + action.item.quantity }
-              : item
-          )
+        ? state.items.map((item) => {
+            if (itemKey(item) !== itemKey(action.item)) return item;
+            const quantity = item.quantity + action.item.quantity;
+            return { ...item, quantity, unitPrice: getDiscountedUnitPrice(item.basePrice, quantity) };
+          })
         : [...state.items, action.item];
       return withTotals(items, state.currency);
     }
@@ -42,7 +43,11 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
 
     case "UPDATE_QUANTITY": {
       const items = state.items
-        .map((item) => (itemKey(item) === itemKey(action) ? { ...item, quantity: action.quantity } : item))
+        .map((item) =>
+          itemKey(item) === itemKey(action)
+            ? { ...item, quantity: action.quantity, unitPrice: getDiscountedUnitPrice(item.basePrice, action.quantity) }
+            : item
+        )
         .filter((item) => item.quantity > 0);
       return withTotals(items, state.currency);
     }

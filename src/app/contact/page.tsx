@@ -5,6 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { WhatsAppIcon } from "@/components/ui/SocialIcons";
+import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
 import { siteConfig } from "@/config/site";
 import { routes } from "@/config/routes";
 import { getSocialLinks } from "@/lib/social";
@@ -42,12 +43,13 @@ export default async function ContactPage() {
 
           <Reveal delay={0.24}>
             <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 text-sm">
-              <a
-                href={`tel:${siteConfig.contact.phone}`}
-                className="font-display text-lg font-extrabold text-foreground"
-              >
-                {siteConfig.contact.phone}
-              </a>
+              <div className="flex flex-col gap-1">
+                {siteConfig.contact.serviceNumbers.map((number) => (
+                  <a key={number} href={`tel:${number}`} className="font-display text-lg font-extrabold text-foreground">
+                    {number}
+                  </a>
+                ))}
+              </div>
               {whatsappUrl ? (
                 <a
                   href={whatsappUrl}
@@ -92,6 +94,12 @@ export default async function ContactPage() {
               </div>
             </Reveal>
           ) : null}
+
+          <Reveal delay={0.32}>
+            <div className="mt-8 border-t border-border pt-6">
+              <ReassuranceStrip />
+            </div>
+          </Reveal>
 
           {/* Opening hours: only a "closes ~23:30" snapshot is verified (via
               the store's Google Maps listing), not a confirmed day-by-day

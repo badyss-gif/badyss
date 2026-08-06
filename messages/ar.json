@@ -243,6 +243,10 @@
     "followUs": "تابعونا",
     "decreaseQuantity": "إنقاص الكمية",
     "increaseQuantity": "زيادة الكمية",
+    "quantityDiscountHeading": "اشترِ أكثر ووفّر أكثر",
+    "quantityDiscountQty": "الكمية {n}",
+    "quantityDiscountTotal": "المجموع: {total}",
+    "quantityDiscountSave": "وفّر {percent}%",
     "faqQ1": "كيف أختار مقاسي؟",
     "faqA1": "راجع دليل المقاسات قبل الطلب، أو تواصل معنا بمقاساتك للحصول على نصيحة.",
     "faqQ2": "كيف أعتني بهذه القطعة؟",
@@ -256,7 +260,12 @@
     "returnsInfoQuestion": "الإرجاع والاستبدال",
     "returnsInfoAnswer": "القطعة لا تناسبك؟ سياسة الإرجاع لدينا مفصّلة في صفحتها الخاصة.",
     "sizeGuideInfoQuestion": "دليل المقاسات",
-    "sizeGuideInfoAnswer": "راجع دليل المقاسات لاختيار القصّة المثالية قبل الطلب."
+    "sizeGuideInfoAnswer": "راجع دليل المقاسات لاختيار القصّة المثالية قبل الطلب.",
+    "sizeGuideCta": "دليل المقاسات",
+    "sizeGuideAria": "افتح دليل المقاسات",
+    "closeSizeGuide": "إغلاق دليل المقاسات",
+    "sizeGuideAvailableSizes": "المقاسات المتوفرة لهذا المنتج مميزة أدناه.",
+    "viewFullSizeGuide": "عرض دليل المقاسات الكامل"
   },
   "shop": {
     "metaTitle": "المتجر",
@@ -333,7 +342,8 @@
     "editCart": "تعديل السلة",
     "stepInformation": "المعلومات",
     "stepPayment": "الدفع",
-    "trustConfidential": "معلومات سرية"
+    "trustConfidential": "معلومات سرية",
+    "quantityDiscountApplied": "تم تطبيق خصم {percent}% على الكمية"
   },
   "buyNow": {
     "metaTitle": "اشترِ الآن",
@@ -726,5 +736,12 @@
     "styleUrbain": "أناقة BADYSS الحضرية.",
     "tshirtPremiumUrbain": "تيشيرت BADYSS فاخر بإطلالة حضرية.",
     "tshirtPremium": "تيشيرت BADYSS فاخر."
+  },
+  "reassurance": {
+    "exchange": "تبديل سهل",
+    "refund": "استرجاع الأموال",
+    "support": "خدمة عملاء سريعة الاستجابة",
+    "delivery": "التوصيل لجميع أنحاء المغرب",
+    "cod": "الدفع عند الاستلام"
   }
 }

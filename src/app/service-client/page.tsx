@@ -40,9 +40,13 @@ export default async function ServiceClientPage() {
       </h1>
 
       <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-        <a href={`tel:${siteConfig.contact.phone}`} className="font-medium text-foreground hover:underline">
-          {siteConfig.contact.phone}
-        </a>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {siteConfig.contact.serviceNumbers.map((number) => (
+            <a key={number} href={`tel:${number}`} className="font-medium text-foreground hover:underline">
+              {number}
+            </a>
+          ))}
+        </div>
         {whatsappUrl ? (
           <a
             href={whatsappUrl}

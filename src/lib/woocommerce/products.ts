@@ -1,18 +1,16 @@
 import "server-only";
 import { wooCommerceFetch } from "./client";
-import type { WooCommerceProduct } from "@/types/woocommerce";
+import type { WooCommerceProduct, WooCommerceVariation } from "@/types/woocommerce";
 
-/**
- * NOT_VERIFIED: endpoint parameters follow the standard WooCommerce REST API
- * v3 contract. Behavior against the real BADYSS store (custom attributes,
- * taxonomies like "Grandes tailles", plugin-added fields) must be confirmed
- * once backend access is available.
- */
+// VERIFIED against the live BADYSS backend 2026-08-06 — standard WooCommerce
+// REST API v3 contract, confirmed via GET /wc/v3/products and
+// /wc/v3/products/{id}/variations against the real store.
 
 export async function getProducts(params?: {
   category?: string;
   perPage?: number;
   page?: number;
+  featured?: boolean;
 }): Promise<WooCommerceProduct[]> {
   return wooCommerceFetch<WooCommerceProduct[]>("/products", {
     searchParams: {
@@ -20,6 +18,7 @@ export async function getProducts(params?: {
       per_page: params?.perPage ?? 24,
       page: params?.page ?? 1,
       status: "publish",
+      featured: params?.featured,
     },
   });
 }
@@ -29,6 +28,10 @@ export async function getProductBySlug(slug: string): Promise<WooCommerceProduct
     searchParams: { slug },
   });
   return products[0] ?? null;
+}
+
+export async function getProductById(id: number): Promise<WooCommerceProduct | null> {
+  return wooCommerceFetch<WooCommerceProduct>(`/products/${id}`).catch(() => null);
 }
 
 export async function searchProducts(
@@ -41,5 +44,12 @@ export async function searchProducts(
       per_page: params?.perPage ?? 24,
       status: "publish",
     },
+  });
+}
+
+/** All variations of a variable product — a separate WooCommerce endpoint, not embedded in the product payload (only variation IDs are). */
+export async function getProductVariations(productId: number): Promise<WooCommerceVariation[]> {
+  return wooCommerceFetch<WooCommerceVariation[]>(`/products/${productId}/variations`, {
+    searchParams: { per_page: 100 },
   });
 }
