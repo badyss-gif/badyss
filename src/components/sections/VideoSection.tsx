@@ -107,7 +107,7 @@ export function VideoSection({ src, poster, posterAlt }: VideoSectionProps) {
                 </h2>
                 <LinkButton
                   href={routes.about}
-                  className="mt-6 bg-white text-foreground hover:bg-white/90 hover:text-foreground"
+                  className="mt-6 bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   {t("cta")}
                 </LinkButton>

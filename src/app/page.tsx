@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ScrollMarquee } from "@/components/sections/ScrollMarquee";
-import { BrandStatement } from "@/components/sections/BrandStatement";
 import { CategoryShowcase } from "@/components/sections/CategoryShowcase";
 import { WhyBadyss } from "@/components/sections/WhyBadyss";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
@@ -45,7 +44,6 @@ export default async function Home() {
     <>
       <HeroSection />
       <ScrollMarquee />
-      <BrandStatement />
       <CategoryShowcase />
       <WhyBadyss />
       <FeaturedProducts

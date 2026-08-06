@@ -139,7 +139,7 @@ export default async function AboutPage() {
         </Reveal>
         <Reveal delay={0.1}>
           <div className="mt-8">
-            <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90 hover:text-foreground">
+            <LinkButton href={routes.shop} className="bg-accent text-accent-foreground hover:bg-accent/90">
               {t("closingCta")}
             </LinkButton>
           </div>

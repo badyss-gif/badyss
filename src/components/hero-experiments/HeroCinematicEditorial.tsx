@@ -70,7 +70,7 @@ export function HeroCinematicEditorial() {
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <MagneticButton>
-            <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90 hover:text-foreground">
+            <LinkButton href={routes.shop} className="bg-accent text-accent-foreground hover:bg-accent/90">
               Découvrir la collection
             </LinkButton>
           </MagneticButton>

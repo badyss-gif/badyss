@@ -122,7 +122,7 @@ export function HeroSplitInteractive() {
             Des silhouettes pensées pour bouger librement.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-4">
-            <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90 hover:text-foreground">
+            <LinkButton href={routes.shop} className="bg-accent text-accent-foreground hover:bg-accent/90">
               Découvrir la collection
             </LinkButton>
             <Link
