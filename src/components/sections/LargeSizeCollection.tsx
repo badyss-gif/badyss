@@ -82,7 +82,7 @@ export function LargeSizeCollection() {
             <Reveal delay={0.32}>
               <LinkButton
                 href={routes.categories.grandesTailles}
-                className="mt-6 bg-white text-foreground hover:bg-white/90"
+                className="mt-6 bg-white text-foreground hover:bg-white/90 hover:text-foreground"
               >
                 {t("cta")}
               </LinkButton>

@@ -54,7 +54,7 @@ export function NewsletterForm({ tone = "light", className }: NewsletterFormProp
         <Button
           type="submit"
           disabled={submitted}
-          className={cn("shrink-0", dark && "bg-white text-foreground hover:bg-white/90")}
+          className={cn("shrink-0", dark && "bg-white text-foreground hover:bg-white/90 hover:text-foreground")}
         >
           {submitted ? t("thanks") : t("subscribe")}
         </Button>

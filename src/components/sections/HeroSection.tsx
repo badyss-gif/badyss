@@ -153,7 +153,7 @@ export function HeroSection() {
               className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4"
             >
               <MagneticButton>
-                <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90">
+                <LinkButton href={routes.shop} className="bg-accent text-accent-foreground hover:bg-accent/90">
                   {t("ctaPrimary")}
                 </LinkButton>
               </MagneticButton>

@@ -158,7 +158,7 @@ export function WelcomePopup() {
               </span>
             </button>
 
-            <div className="relative order-2 flex flex-col justify-center gap-4 p-7 sm:p-9 md:order-1">
+            <div className="relative order-2 flex flex-col justify-center gap-3 p-5 sm:gap-4 sm:p-9 md:order-1">
               <span className="w-fit rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-white/90">
                 {t("badge")}
               </span>
@@ -168,16 +168,16 @@ export function WelcomePopup() {
               >
                 {t("title")}
               </h2>
-              <p className="text-white/75">
+              <p className="text-sm text-white/75 sm:text-base">
                 {t("bodyLine1")}
                 <br />
                 {t("bodyLine2")}
               </p>
-              <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-1 flex flex-col gap-3 sm:mt-2 sm:flex-row">
                 <LinkButton
                   href={routes.shop}
                   onClick={close}
-                  className="justify-center bg-white text-foreground hover:bg-white/90"
+                  className="justify-center bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   {t("discover")}
                 </LinkButton>
@@ -204,7 +204,7 @@ export function WelcomePopup() {
               ) : null}
             </div>
 
-            <div className="relative order-1 aspect-[16/10] overflow-hidden md:order-2 md:aspect-auto">
+            <div className="relative order-1 hidden aspect-[16/10] overflow-hidden md:order-2 md:block md:aspect-auto">
               <Image
                 src="/images/editorial/campaign.png"
                 alt=""

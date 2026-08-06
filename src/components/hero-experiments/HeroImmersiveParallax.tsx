@@ -74,7 +74,7 @@ export function HeroImmersiveParallax() {
           Des silhouettes pensées pour bouger librement.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90">
+          <LinkButton href={routes.shop} className="bg-white text-foreground hover:bg-white/90 hover:text-foreground">
             Découvrir la collection
           </LinkButton>
           <Link
