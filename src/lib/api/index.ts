@@ -167,11 +167,22 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     status: "processing",
     billing: address,
     shipping: address,
-    line_items: input.items.map((item) => ({
-      product_id: item.productId,
-      variation_id: item.variationId,
-      quantity: item.quantity,
-    })),
+    line_items: input.items.map((item) => {
+      // Explicit total — the customer's already-discounted unit price times
+      // quantity — rather than letting WooCommerce fall back to the
+      // variation's own current price. Necessary both to honor the
+      // quantity discount (never applied server-side) and because some
+      // variations in this catalog have no price set at all, which
+      // WooCommerce would otherwise silently total as 0.00.
+      const lineTotal = (item.unitPrice * item.quantity).toFixed(2);
+      return {
+        product_id: item.productId,
+        variation_id: item.variationId,
+        quantity: item.quantity,
+        subtotal: lineTotal,
+        total: lineTotal,
+      };
+    }),
     customer_note: input.note,
   };
 

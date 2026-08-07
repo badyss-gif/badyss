@@ -96,6 +96,7 @@ export function CheckoutClient() {
         productId: item.productId,
         variationId: item.variationId,
         quantity: item.quantity,
+        unitPrice: item.unitPrice,
       })),
     });
 

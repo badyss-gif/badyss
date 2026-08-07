@@ -32,6 +32,15 @@ export interface OrderLineItemInput {
   productId: number;
   variationId?: number;
   quantity: number;
+  /**
+   * Per-unit price the customer actually saw and agreed to — already
+   * includes any quantity discount (see `getDiscountedUnitPrice` in
+   * lib/pricing.ts). Required so `createOrder` can send an explicit line
+   * item total to WooCommerce instead of letting it fall back to the
+   * variation's own (undiscounted, and on this catalog sometimes unset)
+   * price — see the "0.00 MAD order" incident this fixed.
+   */
+  unitPrice: number;
 }
 
 export interface CreateOrderInput {

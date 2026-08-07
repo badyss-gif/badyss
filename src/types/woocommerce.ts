@@ -106,6 +106,14 @@ export interface WooCommerceOrderLineItemInput {
   product_id: number;
   variation_id?: number;
   quantity: number;
+  /**
+   * Explicit line-item price override (decimal string, e.g. "306.00") — set
+   * both to the same value so WooCommerce charges exactly what the
+   * customer saw (post quantity-discount) instead of looking up the
+   * variation's own current price.
+   */
+  subtotal?: string;
+  total?: string;
 }
 
 export interface WooCommerceCreateOrderPayload {

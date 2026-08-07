@@ -149,7 +149,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
       phone: values.phone,
       address: values.address,
       city: values.city,
-      items: [{ productId: product.id, variationId: resolvedVariant?.id, quantity }],
+      items: [{ productId: product.id, variationId: resolvedVariant?.id, quantity, unitPrice }],
     });
 
     if (result.ok) {
