@@ -24,7 +24,7 @@ export const siteConfig = {
   },
   social: {
     facebook: "https://www.facebook.com/profile.php?id=61584535598750", // VERIFIED — provided directly
-    instagram: "https://www.instagram.com/badyss.store/", // VERIFIED — provided directly
+    instagram: "https://www.instagram.com/badyss_store?igsh=djQwamFydGE1MDZy&utm_source=qr", // VERIFIED — provided directly (2026-08-08)
     youtube: null as string | null, // NOT_VERIFIED
   },
   // VERIFIED — a real physical store, confirmed via its Google Maps listing

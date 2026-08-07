@@ -54,7 +54,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {description ? (
           <div className="mt-16 max-w-2xl border-t border-border pt-10">
             <h2 className="font-display text-lg font-extrabold">{t("description")}</h2>
-            <p className="mt-3 text-muted-foreground">{description}</p>
+            {/* WooCommerce descriptions are merchant-authored HTML (paragraphs,
+                headings, lists) from the same admin that already controls the
+                rest of the catalog — rendered as markup here, not escaped
+                text, or every product description would show its raw tags. */}
+            <div
+              className="mt-3 text-muted-foreground [&_h3]:mt-6 [&_h3]:font-display [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-foreground [&_li]:mt-1 [&_p]:mt-3 [&_strong]:font-semibold [&_strong]:text-foreground [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 first:[&>*]:mt-0"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           </div>
         ) : null}
       </Section>

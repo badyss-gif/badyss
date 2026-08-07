@@ -59,14 +59,14 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       variant: "full-bleed",
       image: { src: "/images/campaigns/grandes-tailles.png", alt: tAlt("campagneGrandesTailles") },
     },
-    "t-shirt": {
+    "t-shirts": {
       eyebrow: t("categoryEyebrow"),
       description: t("categoryTshirtDescription"),
       variant: "split",
       imagePosition: "left",
       image: { src: "/images/categories/t-shirts.png", alt: tAlt("tshirtPremiumUrbain") },
     },
-    "ensembles-grande-taille": {
+    "ensembles": {
       eyebrow: t("categoryEyebrow"),
       description: t("categoryEnsemblesDescription"),
       variant: "split",

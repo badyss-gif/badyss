@@ -12,16 +12,13 @@ export const routes = {
   // query-param branch on it, since the two have genuinely different data
   // sources (one product + quantity vs. the whole cart).
   buyNow: (slug: string) => `/acheter/${slug}`,
+  // Slugs verified 2026-08-08 against the live WooCommerce category list
+  // (GET /wc/v3/products/categories) — this store currently has exactly
+  // these 3 top-level categories, no subcategories.
   categories: {
     grandesTailles: "/product-category/grandes-tailles",
-    tShirt: "/product-category/t-shirt",
-    ensembles: "/product-category/ensembles-grande-taille",
-    // Nested under Grandes Tailles, per the real WooCommerce category tree
-    // (docs/BADYSS-SITE-BLUEPRINT.md §2).
-    grandesTaillesChaussures: "/product-category/grandes-tailles/chaussures",
-    grandesTaillesPantalon: "/product-category/grandes-tailles/pantalon",
-    grandesTaillesPantalonsGrandeTaille: "/product-category/grandes-tailles/pantalons-grande-taille",
-    grandesTaillesTshirtGrandeTaille: "/product-category/grandes-tailles/tshirt-grande-taille",
+    tShirt: "/product-category/t-shirts",
+    ensembles: "/product-category/ensembles",
   },
   about: "/a-propos",
   contact: "/contact",

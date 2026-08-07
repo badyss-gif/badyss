@@ -221,10 +221,10 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
           to a sale — with Add to Cart as its secondary companion, not the
           other way round. */}
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button variant="secondary" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center">
+        <Button variant="secondary" size="lg" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center">
           {ctaLabel}
         </Button>
-        <Button onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center">
+        <Button size="lg" onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center">
           {t("buyNow")}
         </Button>
       </div>
@@ -254,10 +254,10 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         <span className="shrink-0 text-base font-medium text-foreground">
           {formatPrice(effectivePrice.amount, effectivePrice.currency)}
         </span>
-        <Button variant="secondary" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center px-3">
+        <Button variant="secondary" size="lg" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center px-3">
           {ctaLabelCompact}
         </Button>
-        <Button onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center px-3">
+        <Button size="lg" onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center px-3">
           {t("buyShort")}
         </Button>
       </div>
