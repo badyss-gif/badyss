@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { useCart } from "@/features/cart/CartContext";
 import { findVariantForSelection } from "@/features/products/variants";
 import { formatPrice } from "@/lib/format";
-import { getDiscountedUnitPrice } from "@/lib/pricing";
+import { getEffectiveUnitPrice } from "@/lib/badyss-offer";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
@@ -56,6 +56,7 @@ export function QuickView({ product, onClose }: QuickViewProps) {
   const resolvedVariant = findVariantForSelection(product, selected);
   const effectivePrice = resolvedVariant?.price ?? product.price;
   const effectiveStock = resolvedVariant?.stock ?? product.stock;
+  const effectiveOffer = resolvedVariant?.badyssOffer ?? product.badyssOffer;
   const isOutOfStock = effectiveStock.status === "out-of-stock";
   const availability = stockLabel[effectiveStock.status];
 
@@ -68,9 +69,10 @@ export function QuickView({ product, onClose }: QuickViewProps) {
       name: product.name,
       image: resolvedVariant?.image ?? product.images[0] ?? null,
       basePrice: effectivePrice.amount,
-      unitPrice: getDiscountedUnitPrice(effectivePrice.amount, quantity),
+      unitPrice: getEffectiveUnitPrice(effectivePrice.amount, effectiveOffer, quantity),
       quantity,
       attributes: Object.keys(selected).length > 0 ? selected : undefined,
+      badyssOffer: effectiveOffer,
     });
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 2000);

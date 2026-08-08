@@ -1,4 +1,5 @@
 import type {
+  WooCommerceBadyssOffer,
   WooCommerceCategory,
   WooCommerceCategoryRef,
   WooCommerceImage,
@@ -7,8 +8,35 @@ import type {
   WooCommerceStockStatus,
   WooCommerceVariation,
 } from "@/types/woocommerce";
-import type { Product, ProductCategory, ProductImage, ProductPrice, ProductStock, ProductVariant, StockStatus } from "@/types/product";
+import type { BadyssOffer, Product, ProductCategory, ProductImage, ProductPrice, ProductStock, ProductVariant, StockStatus } from "@/types/product";
 import type { Order } from "@/types/order";
+
+/**
+ * Used whenever a product/variation genuinely has no BADYSS offer (or the
+ * response predates the plugin) — kept as one shared constant so every
+ * consumer checks `.enabled` against the same shape rather than juggling
+ * `undefined`. Also reused directly by src/lib/mock-data/products.ts.
+ */
+export const DISABLED_BADYSS_OFFER: BadyssOffer = {
+  enabled: false,
+  type: null,
+  tiers: [],
+  maxQuantity: 5,
+  source: "product",
+  moreThanMax: { enabled: false, whatsapp: "", url: "" },
+};
+
+function mapBadyssOffer(raw: WooCommerceBadyssOffer | undefined): BadyssOffer {
+  if (!raw) return DISABLED_BADYSS_OFFER;
+  return {
+    enabled: raw.enabled,
+    type: raw.type,
+    tiers: raw.tiers.map((tier) => ({ ...tier })),
+    maxQuantity: raw.max_quantity,
+    source: raw.source,
+    moreThanMax: { ...raw.more_than_max },
+  };
+}
 
 function mapStockStatus(status: WooCommerceStockStatus): StockStatus {
   switch (status) {
@@ -88,6 +116,7 @@ export function mapWooCommerceProduct(raw: WooCommerceProduct): Product {
     })),
     type: raw.type,
     featured: raw.featured,
+    badyssOffer: mapBadyssOffer(raw.badyss_offer),
   };
 }
 
@@ -112,6 +141,7 @@ export function mapWooCommerceVariation(
     price,
     stock,
     image: raw.image ? mapImage(raw.image) : null,
+    badyssOffer: mapBadyssOffer(raw.badyss_offer),
   };
 }
 

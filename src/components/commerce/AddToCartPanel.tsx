@@ -15,7 +15,7 @@ import { SizeGuideDrawer } from "./SizeGuideDrawer";
 import { Button } from "@/components/ui/Button";
 import { FaqAccordion } from "@/components/faq/FaqAccordion";
 import { formatPrice } from "@/lib/format";
-import { getDiscountedUnitPrice, getQuantityDiscountPercent } from "@/lib/pricing";
+import { getEffectiveUnitPrice, getBadyssSavings, shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
 import { routes } from "@/config/routes";
 import { siteConfig } from "@/config/site";
 import { publicEnv } from "@/config/env";
@@ -94,6 +94,12 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   const resolvedVariant = findVariantForSelection(product, selected);
   const effectivePrice = resolvedVariant?.price ?? product.price;
   const effectiveStock = resolvedVariant?.stock ?? product.stock;
+  // Same fallback pattern as price/stock: a fully-selected variation's own
+  // offer (its own override, or inherited from this same parent) once
+  // chosen; the parent's own (template-only, for a variable product) offer
+  // before that. See QuantityDiscountTiers for how the "no computed price
+  // yet" template case is handled.
+  const effectiveOffer = resolvedVariant?.badyssOffer ?? product.badyssOffer;
   const isOutOfStock = effectiveStock.status === "out-of-stock";
   const availability = stockLabel[effectiveStock.status];
   const isDisabled = isOutOfStock || Boolean(missingAttribute);
@@ -107,9 +113,10 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
       name: product.name,
       image: resolvedVariant?.image ?? product.images[0] ?? null,
       basePrice: effectivePrice.amount,
-      unitPrice: getDiscountedUnitPrice(effectivePrice.amount, quantity),
+      unitPrice: getEffectiveUnitPrice(effectivePrice.amount, effectiveOffer, quantity),
       quantity,
       attributes: Object.keys(selected).length > 0 ? selected : undefined,
+      badyssOffer: effectiveOffer,
     });
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 2200);
@@ -192,12 +199,14 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         {t("sizeGuideCta")}
       </button>
 
-      <QuantityDiscountTiers
-        unitPrice={effectivePrice.amount}
-        currency={effectivePrice.currency}
-        selectedQuantity={quantity}
-        onSelect={setQuantity}
-      />
+      {effectiveOffer.enabled ? (
+        <QuantityDiscountTiers
+          offer={effectiveOffer}
+          currency={effectivePrice.currency}
+          selectedQuantity={quantity}
+          onSelect={setQuantity}
+        />
+      ) : null}
 
       <div className="flex items-center gap-3">
         <QuantityStepper quantity={quantity} onChange={setQuantity} />
@@ -206,14 +215,33 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
       {missingAttribute ? (
         <p className="text-xs text-error">{t("selectOption", { attribute: missingAttribute.name })}</p>
       ) : null}
-      {quantity > 1 ? (
+      {quantity > 1
+        ? (() => {
+            const savings = getBadyssSavings(effectiveOffer, quantity);
+            return (
+              <p className="-mt-2 text-xs text-muted-foreground">
+                {t("quantityDiscountTotal", {
+                  total: formatPrice(getEffectiveUnitPrice(effectivePrice.amount, effectiveOffer, quantity) * quantity, effectivePrice.currency) ?? "",
+                })}
+                {savings?.percent ? ` · ${t("quantityDiscountSave", { percent: savings.percent })}` : ""}
+                {savings?.amount
+                  ? ` · ${t("quantityDiscountSaveAmount", { amount: formatPrice(savings.amount, effectivePrice.currency) ?? "" })}`
+                  : ""}
+              </p>
+            );
+          })()
+        : null}
+      {shouldShowMoreThanMaxCta(effectiveOffer, quantity) ? (
         <p className="-mt-2 text-xs text-muted-foreground">
-          {t("quantityDiscountTotal", {
-            total: formatPrice(getDiscountedUnitPrice(effectivePrice.amount, quantity) * quantity, effectivePrice.currency) ?? "",
-          })}
-          {getQuantityDiscountPercent(quantity) > 0
-            ? ` · ${t("quantityDiscountSave", { percent: getQuantityDiscountPercent(quantity) })}`
-            : ""}
+          {t("moreThanMaxCta")}{" "}
+          <a
+            href={effectiveOffer.moreThanMax.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-2"
+          >
+            {t("moreThanMaxLink")}
+          </a>
         </p>
       ) : null}
 

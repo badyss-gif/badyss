@@ -14,7 +14,7 @@ import { CheckoutTrustBadges } from "./CheckoutTrustBadges";
 import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
 import { findVariantForSelection } from "@/features/products/variants";
 import { formatPrice } from "@/lib/format";
-import { getDiscountedUnitPrice, getQuantityDiscountPercent } from "@/lib/pricing";
+import { getEffectiveUnitPrice, getBadyssSavings, shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
 import { isValidMoroccanPhone } from "@/lib/validation";
 import { getWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { submitOrder } from "@/lib/actions/orders";
@@ -115,6 +115,7 @@ function OrderSummaryLine({ product, quantity, attributes }: { product: Product;
 export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: BuyNowCheckoutProps) {
   const t = useTranslations("buyNow");
   const tCheckout = useTranslations("checkout");
+  const tProduct = useTranslations("product");
   const [quantity, setQuantity] = useState(initialQuantity);
   const [values, setValues] = useState<FormValues>({ fullName: "", phone: "", address: "", city: "" });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -125,9 +126,10 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
   const resolvedVariant = findVariantForSelection(product, initialAttributes);
   const effectivePrice = resolvedVariant?.price ?? product.price;
   const effectiveStock = resolvedVariant?.stock ?? product.stock;
-  const unitPrice = getDiscountedUnitPrice(effectivePrice.amount, quantity);
+  const effectiveOffer = resolvedVariant?.badyssOffer ?? product.badyssOffer;
+  const unitPrice = getEffectiveUnitPrice(effectivePrice.amount, effectiveOffer, quantity);
   const totalPrice = unitPrice * quantity;
-  const discountPercent = getQuantityDiscountPercent(quantity);
+  const savings = getBadyssSavings(effectiveOffer, quantity);
   const attributesEntries = Object.entries(initialAttributes);
   const isOutOfStock = effectiveStock.status === "out-of-stock";
 
@@ -320,8 +322,26 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
           <span className="text-muted-foreground">{t("total")}</span>
           <span className="font-medium text-foreground">{formatPrice(totalPrice, effectivePrice.currency)}</span>
         </div>
-        {discountPercent > 0 ? (
-          <p className="mt-1 text-xs text-accent">{tCheckout("quantityDiscountApplied", { percent: discountPercent })}</p>
+        {savings?.percent ? (
+          <p className="mt-1 text-xs text-accent">{tCheckout("quantityDiscountApplied", { percent: savings.percent })}</p>
+        ) : null}
+        {savings?.amount ? (
+          <p className="mt-1 text-xs text-accent">
+            {tCheckout("quantityDiscountAppliedAmount", { amount: formatPrice(savings.amount, effectivePrice.currency) ?? "" })}
+          </p>
+        ) : null}
+        {shouldShowMoreThanMaxCta(effectiveOffer, quantity) ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {tProduct("moreThanMaxCta")}{" "}
+            <a
+              href={effectiveOffer.moreThanMax.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline underline-offset-2"
+            >
+              {tProduct("moreThanMaxLink")}
+            </a>
+          </p>
         ) : null}
         <p className="mt-2 text-xs text-muted-foreground">{tCheckout("shippingSeparately")}</p>
         <ReassuranceStrip className="mt-4 flex-col items-start gap-2 border-t border-border pt-4" />

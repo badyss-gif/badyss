@@ -1,4 +1,4 @@
-import { getDiscountedUnitPrice } from "@/lib/pricing";
+import { getEffectiveUnitPrice } from "@/lib/badyss-offer";
 import type { Cart, CartItem } from "@/types/cart";
 
 export type CartAction =
@@ -30,7 +30,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
         ? state.items.map((item) => {
             if (itemKey(item) !== itemKey(action.item)) return item;
             const quantity = item.quantity + action.item.quantity;
-            return { ...item, quantity, unitPrice: getDiscountedUnitPrice(item.basePrice, quantity) };
+            return { ...item, quantity, unitPrice: getEffectiveUnitPrice(item.basePrice, item.badyssOffer, quantity) };
           })
         : [...state.items, action.item];
       return withTotals(items, state.currency);
@@ -45,7 +45,7 @@ export function cartReducer(state: Cart, action: CartAction): Cart {
       const items = state.items
         .map((item) =>
           itemKey(item) === itemKey(action)
-            ? { ...item, quantity: action.quantity, unitPrice: getDiscountedUnitPrice(item.basePrice, action.quantity) }
+            ? { ...item, quantity: action.quantity, unitPrice: getEffectiveUnitPrice(item.basePrice, item.badyssOffer, action.quantity) }
             : item
         )
         .filter((item) => item.quantity > 0);

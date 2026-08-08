@@ -247,6 +247,9 @@
     "quantityDiscountQty": "Qté {n}",
     "quantityDiscountTotal": "Total : {total}",
     "quantityDiscountSave": "économisez {percent}%",
+    "quantityDiscountSaveAmount": "économisez {amount}",
+    "moreThanMaxCta": "Vous souhaitez commander plus de 5 articles ?",
+    "moreThanMaxLink": "Contactez-nous sur WhatsApp pour une offre personnalisée.",
     "faqQ1": "Comment choisir ma taille ?",
     "faqA1": "Consultez notre guide des tailles avant de commander, ou contactez-nous avec vos mensurations pour être conseillé.",
     "faqQ2": "Comment entretenir cette pièce ?",
@@ -343,7 +346,8 @@
     "stepInformation": "Informations",
     "stepPayment": "Paiement",
     "trustConfidential": "Informations confidentielles",
-    "quantityDiscountApplied": "Remise quantité de {percent}% appliquée"
+    "quantityDiscountApplied": "Remise quantité de {percent}% appliquée",
+    "quantityDiscountAppliedAmount": "Remise de {amount} appliquée"
   },
   "buyNow": {
     "metaTitle": "Acheter maintenant",

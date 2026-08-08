@@ -1,4 +1,5 @@
 import type { Product, ProductCategory } from "@/types/product";
+import { DISABLED_BADYSS_OFFER } from "@/lib/woocommerce/transform";
 
 /**
  * MOCK DATA — clearly labeled below, not real BADYSS catalog data. Powers
@@ -29,7 +30,7 @@ function categoriesFor(...slugs: string[]): ProductCategory[] {
   });
 }
 
-const rawMockProducts: Array<Omit<Product, "sku" | "type" | "featured">> = [
+const rawMockProducts: Array<Omit<Product, "sku" | "type" | "featured" | "badyssOffer">> = [
   {
     id: 1,
     slug: "ensemble-sport-exemple",
@@ -208,6 +209,7 @@ export const mockProducts: Product[] = rawMockProducts.map((product) => ({
   sku: "",
   type: "simple",
   featured: false,
+  badyssOffer: DISABLED_BADYSS_OFFER,
 }));
 
 /** Kept for existing homepage sections that ask for a small curated slice. */

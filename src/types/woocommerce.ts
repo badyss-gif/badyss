@@ -42,6 +42,31 @@ export interface WooCommerceVariationAttribute {
 export type WooCommerceProductType = "simple" | "variable" | "grouped" | "external";
 export type WooCommerceStockStatus = "instock" | "outofstock" | "onbackorder";
 
+// From the BADYSS WooCommerce Offers plugin (badyss-woocommerce-offers) —
+// see its own readme.txt for the full REST shape/behavior. Optional here
+// since a response could in principle predate/lack the plugin.
+export interface WooCommerceBadyssOfferTier {
+  quantity: number;
+  discount?: number;
+  price?: number;
+  original_price?: number;
+  final_price?: number;
+  unit_price?: number;
+}
+export interface WooCommerceBadyssOfferMoreThanMax {
+  enabled: boolean;
+  whatsapp: string;
+  url: string;
+}
+export interface WooCommerceBadyssOffer {
+  enabled: boolean;
+  type: "percentage" | "fixed" | null;
+  tiers: WooCommerceBadyssOfferTier[];
+  max_quantity: number;
+  source: "product" | "parent" | "variation";
+  more_than_max: WooCommerceBadyssOfferMoreThanMax;
+}
+
 export interface WooCommerceVariation {
   id: number;
   sku: string;
@@ -54,6 +79,7 @@ export interface WooCommerceVariation {
   manage_stock: boolean;
   attributes: WooCommerceVariationAttribute[];
   image: WooCommerceImage | null;
+  badyss_offer?: WooCommerceBadyssOffer;
 }
 
 export interface WooCommerceProduct {
@@ -78,6 +104,7 @@ export interface WooCommerceProduct {
   images: WooCommerceImage[];
   attributes: WooCommerceAttribute[];
   variations: number[];
+  badyss_offer?: WooCommerceBadyssOffer;
 }
 
 export interface WooCommerceCategory {

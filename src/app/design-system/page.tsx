@@ -9,6 +9,7 @@ import { CreativeVisual } from "@/components/ui/CreativeVisual";
 import { ProductCard } from "@/components/commerce/ProductCard";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { Reveal } from "@/components/motion/Reveal";
+import { DISABLED_BADYSS_OFFER } from "@/lib/woocommerce/transform";
 import type { Product } from "@/types/product";
 
 // Internal, development-only visual validation route — not part of the
@@ -51,6 +52,7 @@ const mockProducts: Product[] = [
     attributes: [{ name: "Couleur", options: ["Noir", "Blanc"], usedForVariations: true }],
     type: "simple",
     featured: false,
+    badyssOffer: DISABLED_BADYSS_OFFER,
   },
   {
     id: 2,
@@ -66,6 +68,7 @@ const mockProducts: Product[] = [
     attributes: [],
     type: "simple",
     featured: false,
+    badyssOffer: DISABLED_BADYSS_OFFER,
   },
   {
     id: 3,
@@ -81,6 +84,7 @@ const mockProducts: Product[] = [
     attributes: [{ name: "Taille", options: ["S", "M", "L"], usedForVariations: true }],
     type: "simple",
     featured: false,
+    badyssOffer: DISABLED_BADYSS_OFFER,
   },
   {
     id: 4,
@@ -91,6 +95,7 @@ const mockProducts: Product[] = [
     sku: "MOCK-004",
     price: { amount: 279, currency: "MAD", onSale: false },
     stock: { status: "in-stock" },
+    badyssOffer: DISABLED_BADYSS_OFFER,
     images: [],
     categories: [],
     attributes: [],

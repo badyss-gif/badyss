@@ -10,7 +10,7 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { ShippingProgressBar } from "./ShippingProgressBar";
 import { CartUpsell } from "./CartUpsell";
 import { formatPrice } from "@/lib/format";
-import { getQuantityDiscountPercent } from "@/lib/pricing";
+import { getBadyssTier } from "@/lib/badyss-offer";
 import { routes } from "@/config/routes";
 import type { Product } from "@/types/product";
 
@@ -40,7 +40,9 @@ export function CartPageClient({ products }: { products: Product[] }) {
     <div className="grid gap-12 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]">
       <ul className="flex flex-col divide-y divide-border">
         <AnimatePresence initial={false}>
-          {cart.items.map((item) => (
+          {cart.items.map((item) => {
+            const tier = getBadyssTier(item.badyssOffer, item.quantity);
+            return (
             <motion.li
               key={itemKey(item.productId, item.variationId)}
               layout
@@ -60,9 +62,9 @@ export function CartPageClient({ products }: { products: Product[] }) {
                     {item.attributes ? (
                       <p className="mt-1 text-sm text-muted-foreground">{Object.values(item.attributes).join(" · ")}</p>
                     ) : null}
-                    {getQuantityDiscountPercent(item.quantity) > 0 ? (
+                    {typeof tier?.discount === "number" && tier.discount > 0 ? (
                       <span className="mt-1 inline-block rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold tracking-wide text-accent-foreground">
-                        -{getQuantityDiscountPercent(item.quantity)}%
+                        -{tier.discount}%
                       </span>
                     ) : null}
                   </div>
@@ -85,7 +87,8 @@ export function CartPageClient({ products }: { products: Product[] }) {
                 </div>
               </div>
             </motion.li>
-          ))}
+            );
+          })}
         </AnimatePresence>
       </ul>
 

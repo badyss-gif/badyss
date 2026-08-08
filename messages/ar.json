@@ -247,6 +247,9 @@
     "quantityDiscountQty": "الكمية {n}",
     "quantityDiscountTotal": "المجموع: {total}",
     "quantityDiscountSave": "وفّر {percent}%",
+    "quantityDiscountSaveAmount": "وفّر {amount}",
+    "moreThanMaxCta": "هل ترغب في طلب أكثر من 5 قطع؟",
+    "moreThanMaxLink": "تواصل معنا عبر واتساب للحصول على عرض خاص.",
     "faqQ1": "كيف أختار مقاسي؟",
     "faqA1": "راجع دليل المقاسات قبل الطلب، أو تواصل معنا بمقاساتك للحصول على نصيحة.",
     "faqQ2": "كيف أعتني بهذه القطعة؟",
@@ -343,7 +346,8 @@
     "stepInformation": "المعلومات",
     "stepPayment": "الدفع",
     "trustConfidential": "معلومات سرية",
-    "quantityDiscountApplied": "تم تطبيق خصم {percent}% على الكمية"
+    "quantityDiscountApplied": "تم تطبيق خصم {percent}% على الكمية",
+    "quantityDiscountAppliedAmount": "تم تطبيق خصم {amount}"
   },
   "buyNow": {
     "metaTitle": "اشترِ الآن",

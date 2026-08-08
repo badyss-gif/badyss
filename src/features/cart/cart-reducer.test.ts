@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { cartReducer, initialCart } from "./cart-reducer";
+import type { BadyssOffer } from "@/types/product";
 import type { CartItem } from "@/types/cart";
+
+const badyssOffer: BadyssOffer = {
+  enabled: true,
+  type: "percentage",
+  tiers: [
+    { quantity: 1, price: 100 },
+    { quantity: 2, discount: 10, original_price: 200, final_price: 180, unit_price: 90 },
+    { quantity: 3, discount: 20, original_price: 300, final_price: 240, unit_price: 80 },
+  ],
+  maxQuantity: 5,
+  source: "product",
+  moreThanMax: { enabled: false, whatsapp: "", url: "" },
+};
 
 const item: CartItem = {
   productId: 1,
@@ -10,6 +24,7 @@ const item: CartItem = {
   basePrice: 100,
   unitPrice: 100,
   quantity: 1,
+  badyssOffer,
 };
 
 describe("cartReducer", () => {

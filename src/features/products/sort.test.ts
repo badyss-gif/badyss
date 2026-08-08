@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterProductsByCategorySlug, sortProducts } from "./sort";
+import { DISABLED_BADYSS_OFFER } from "@/lib/woocommerce/transform";
 import type { Product } from "@/types/product";
 
 function makeProduct(overrides: Partial<Product>): Product {
@@ -17,6 +18,7 @@ function makeProduct(overrides: Partial<Product>): Product {
     attributes: [],
     type: "simple",
     featured: false,
+    badyssOffer: DISABLED_BADYSS_OFFER,
     ...overrides,
   };
 }

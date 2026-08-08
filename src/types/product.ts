@@ -37,6 +37,51 @@ export interface ProductStock {
   manageStock?: boolean;
 }
 
+/**
+ * One quantity tier from the BADYSS WooCommerce Offers plugin's
+ * `badyss_offer` REST field. Shape depends on quantity/mode:
+ *  - quantity 1: only `price` (the effective per-unit price, no discount).
+ *  - quantity 2-5, percentage mode: `discount`, `original_price`,
+ *    `final_price`, `unit_price`.
+ *  - quantity 2-5, fixed mode: `price` (the configured total),
+ *    `original_price`, `unit_price` — no `discount`.
+ *  - On a variable *parent* product (not a specific variation), tiers are a
+ *    template only: `discount` (percentage mode) or `price` (fixed mode,
+ *    since a fixed total doesn't depend on any variation's price) — no
+ *    computed original/final/unit price, since there's no single price at
+ *    that level yet.
+ */
+export interface BadyssOfferTier {
+  quantity: number;
+  discount?: number;
+  price?: number;
+  original_price?: number;
+  final_price?: number;
+  unit_price?: number;
+}
+
+export interface BadyssOfferMoreThanMax {
+  enabled: boolean;
+  whatsapp: string;
+  url: string;
+}
+
+/**
+ * Always present on every `Product`/`ProductVariant` (mirroring the plugin's
+ * own REST field, which always returns a full shape even when there's no
+ * offer) — check `.enabled` rather than the field's own presence.
+ */
+export interface BadyssOffer {
+  enabled: boolean;
+  type: "percentage" | "fixed" | null;
+  tiers: BadyssOfferTier[];
+  maxQuantity: number;
+  /** Whether this came from the product/variation's own config, or (for a
+   *  variation with no override) was inherited from its parent. */
+  source: "product" | "parent" | "variation";
+  moreThanMax: BadyssOfferMoreThanMax;
+}
+
 export interface ProductVariant {
   id: number;
   sku: string;
@@ -45,6 +90,7 @@ export interface ProductVariant {
   price: ProductPrice;
   stock: ProductStock;
   image: ProductImage | null;
+  badyssOffer: BadyssOffer;
 }
 
 export interface Product {
@@ -62,4 +108,5 @@ export interface Product {
   type: "simple" | "variable" | "grouped" | "external";
   featured: boolean;
   variants?: ProductVariant[];
+  badyssOffer: BadyssOffer;
 }
