@@ -219,12 +219,28 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
 
       {/* Buy Now is the prominent (dark/primary) action — the fastest path
           to a sale — with Add to Cart as its secondary companion, not the
-          other way round. */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button variant="secondary" size="lg" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center">
+          other way round. Always side-by-side (never stacked, even at
+          375px) with a substantial 56px mobile height — `md:` (≥768px)
+          classes below restore the original 48px desktop treatment
+          unchanged, since `size="lg"` alone only ever gave 48px on every
+          screen size, which read as too thin on mobile. */}
+      <div className="flex flex-row gap-2 md:gap-3">
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={handleAddToCart}
+          disabled={isDisabled}
+          className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
+        >
           {ctaLabel}
         </Button>
-        <Button size="lg" onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center">
+        <Button
+          size="lg"
+          onClick={handleBuyNow}
+          loading={buyNowPending}
+          disabled={isDisabled}
+          className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
+        >
           {t("buyNow")}
         </Button>
       </div>
