@@ -39,12 +39,13 @@ export interface ProductStock {
 
 /**
  * One quantity tier from the BADYSS WooCommerce Offers plugin's
- * `badyss_offer` REST field. Shape depends on quantity/mode:
- *  - quantity 1: only `price` (the effective per-unit price, no discount).
- *  - quantity 2-5, percentage mode: `discount`, `original_price`,
- *    `final_price`, `unit_price`.
- *  - quantity 2-5, fixed mode: `price` (the configured total),
- *    `original_price`, `unit_price` — no `discount`.
+ * `badyss_offer` REST field. As of plugin 1.3.0, BADYSS only ever offers
+ * quantity 2 and quantity 3 — there is no quantity 1 tier (buying 1 unit is
+ * always the normal WooCommerce price) and no quantity 4/5 tier. Shape
+ * depends on mode:
+ *  - percentage mode: `discount`, `original_price`, `final_price`, `unit_price`.
+ *  - fixed mode: `price` (the configured total), `original_price`,
+ *    `final_price`, `unit_price` — no `discount`.
  *  - On a variable *parent* product (not a specific variation), tiers are a
  *    template only: `discount` (percentage mode) or `price` (fixed mode,
  *    since a fixed total doesn't depend on any variation's price) — no
@@ -75,10 +76,13 @@ export interface BadyssOffer {
   enabled: boolean;
   type: "percentage" | "fixed" | null;
   tiers: BadyssOfferTier[];
+  /** Always 3 — the highest quantity BADYSS sells through the normal cart
+   *  flow. Quantity above this is a "contact us on WhatsApp" CTA instead;
+   *  see `moreThanMax`. */
   maxQuantity: number;
-  /** Whether this came from the product/variation's own config, or (for a
-   *  variation with no override) was inherited from its parent. */
-  source: "product" | "parent" | "variation";
+  /** Whether this came from the product's own config, or (for a variation,
+   *  which always inherits) was resolved from its parent. */
+  source: "product" | "parent";
   moreThanMax: BadyssOfferMoreThanMax;
 }
 

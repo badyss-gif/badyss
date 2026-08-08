@@ -63,7 +63,7 @@ export interface WooCommerceBadyssOffer {
   type: "percentage" | "fixed" | null;
   tiers: WooCommerceBadyssOfferTier[];
   max_quantity: number;
-  source: "product" | "parent" | "variation";
+  source: "product" | "parent";
   more_than_max: WooCommerceBadyssOfferMoreThanMax;
 }
 

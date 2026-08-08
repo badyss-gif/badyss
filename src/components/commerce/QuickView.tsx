@@ -10,10 +10,12 @@ import { ProductImage } from "./ProductImage";
 import { QuantityStepper } from "./QuantityStepper";
 import { WishlistButton } from "./WishlistButton";
 import { Button } from "@/components/ui/Button";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { useCart } from "@/features/cart/CartContext";
 import { findVariantForSelection } from "@/features/products/variants";
 import { formatPrice } from "@/lib/format";
-import { getEffectiveUnitPrice } from "@/lib/badyss-offer";
+import { getEffectiveUnitPrice, shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
@@ -59,9 +61,10 @@ export function QuickView({ product, onClose }: QuickViewProps) {
   const effectiveOffer = resolvedVariant?.badyssOffer ?? product.badyssOffer;
   const isOutOfStock = effectiveStock.status === "out-of-stock";
   const availability = stockLabel[effectiveStock.status];
+  const isOverBadyssLimit = shouldShowMoreThanMaxCta(effectiveOffer, quantity);
 
   function handleAddToCart() {
-    if (!product || missingAttribute || isOutOfStock) return;
+    if (!product || missingAttribute || isOutOfStock || isOverBadyssLimit) return;
     addItem({
       productId: product.id,
       variationId: resolvedVariant?.id,
@@ -169,17 +172,34 @@ export function QuickView({ product, onClose }: QuickViewProps) {
 
                 <div className="flex items-center gap-3">
                   <QuantityStepper quantity={quantity} onChange={setQuantity} size="sm" />
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={isOutOfStock || Boolean(missingAttribute)}
-                    className="flex-1 justify-center"
-                  >
-                    {ctaLabel}
-                  </Button>
+                  {isOverBadyssLimit ? (
+                    <LinkButton
+                      href={effectiveOffer.moreThanMax.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 justify-center gap-2"
+                    >
+                      <WhatsAppIcon className="h-4 w-4" />
+                      {t("orderViaWhatsApp")}
+                    </LinkButton>
+                  ) : (
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={isOutOfStock || Boolean(missingAttribute)}
+                      className="flex-1 justify-center"
+                    >
+                      {ctaLabel}
+                    </Button>
+                  )}
                   <WishlistButton productId={product.id} productName={product.name} size="sm" />
                 </div>
                 {missingAttribute ? (
                   <p className="-mt-2 text-xs text-error">{t("selectOption", { attribute: missingAttribute.name })}</p>
+                ) : null}
+                {isOverBadyssLimit ? (
+                  <p className="-mt-2 text-xs text-muted-foreground">
+                    {t("moreThanMaxCta")} {t("moreThanMaxLink")}
+                  </p>
                 ) : null}
 
                 <Link

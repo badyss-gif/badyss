@@ -15,6 +15,7 @@ import { CheckoutTrustBadges } from "./CheckoutTrustBadges";
 import { ReassuranceStrip } from "@/components/shared/ReassuranceStrip";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { formatPrice } from "@/lib/format";
+import { shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
 import { isValidMoroccanPhone } from "@/lib/validation";
 import { getWhatsAppCartOrderUrl } from "@/lib/whatsapp";
 import { submitOrder } from "@/lib/actions/orders";
@@ -61,12 +62,40 @@ export function CheckoutClient() {
   const t = useTranslations("checkout");
   const tBuyNow = useTranslations("buyNow");
   const tCart = useTranslations("cart");
+  const tProduct = useTranslations("product");
+  // BADYSS only sells quantity 1-3 through the normal cart/checkout flow —
+  // an item that reached this page above that limit (e.g. via a bookmarked
+  // /commande URL) blocks checkout entirely, matching the same rule
+  // enforced on the cart page and server-side.
+  const blockedItem = cart.items.find((item) => shouldShowMoreThanMaxCta(item.badyssOffer, item.quantity));
 
   if (cart.items.length === 0 && status !== "success") {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
         <p className="font-display text-2xl font-extrabold">{tCart("empty")}</p>
         <LinkButton href={routes.shop}>{tCart("viewShop")}</LinkButton>
+      </div>
+    );
+  }
+
+  if (blockedItem && status !== "success") {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
+        <p className="font-display text-2xl font-extrabold">{tProduct("moreThanMaxCta")}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">{tProduct("moreThanMaxLink")}</p>
+        <LinkButton
+          href={blockedItem.badyssOffer?.moreThanMax.url ?? "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          size="lg"
+          className="gap-2"
+        >
+          <WhatsAppIcon className="h-4 w-4" />
+          {tProduct("orderViaWhatsApp")}
+        </LinkButton>
+        <Link href={routes.cart} className="text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+          {t("editCart")}
+        </Link>
       </div>
     );
   }

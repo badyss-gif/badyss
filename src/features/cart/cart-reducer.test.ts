@@ -7,11 +7,10 @@ const badyssOffer: BadyssOffer = {
   enabled: true,
   type: "percentage",
   tiers: [
-    { quantity: 1, price: 100 },
     { quantity: 2, discount: 10, original_price: 200, final_price: 180, unit_price: 90 },
     { quantity: 3, discount: 20, original_price: 300, final_price: 240, unit_price: 80 },
   ],
-  maxQuantity: 5,
+  maxQuantity: 3,
   source: "product",
   moreThanMax: { enabled: false, whatsapp: "", url: "" },
 };

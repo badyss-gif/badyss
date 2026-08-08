@@ -7,10 +7,11 @@ import { useCart } from "@/features/cart/CartContext";
 import { ProductImage } from "@/components/commerce/ProductImage";
 import { QuantityStepper } from "@/components/commerce/QuantityStepper";
 import { LinkButton } from "@/components/ui/LinkButton";
+import { WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { ShippingProgressBar } from "./ShippingProgressBar";
 import { CartUpsell } from "./CartUpsell";
 import { formatPrice } from "@/lib/format";
-import { getBadyssTier } from "@/lib/badyss-offer";
+import { getBadyssTier, shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
 import { routes } from "@/config/routes";
 import type { Product } from "@/types/product";
 
@@ -21,6 +22,12 @@ function itemKey(productId: number, variationId?: number) {
 export function CartPageClient({ products }: { products: Product[] }) {
   const { cart, removeItem, updateQuantity } = useCart();
   const t = useTranslations("cart");
+  const tProduct = useTranslations("product");
+  // BADYSS only sells quantity 1-3 through the normal cart/checkout flow —
+  // a line pushed above that (via this page's own quantity stepper) blocks
+  // checkout entirely rather than silently charging full price, matching
+  // the same rule enforced on the product page and server-side.
+  const blockedItem = cart.items.find((item) => shouldShowMoreThanMaxCta(item.badyssOffer, item.quantity));
 
   if (cart.items.length === 0) {
     return (
@@ -85,6 +92,11 @@ export function CartPageClient({ products }: { products: Product[] }) {
                     {t("remove")}
                   </button>
                 </div>
+                {shouldShowMoreThanMaxCta(item.badyssOffer, item.quantity) ? (
+                  <p className="text-xs text-error">
+                    {tProduct("moreThanMaxCta")} {tProduct("moreThanMaxLink")}
+                  </p>
+                ) : null}
               </div>
             </motion.li>
             );
@@ -102,9 +114,27 @@ export function CartPageClient({ products }: { products: Product[] }) {
             <span className="font-medium text-foreground">{formatPrice(cart.subtotal, cart.currency)}</span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{t("shippingCalculatedAtCheckout")}</p>
-          <LinkButton href={routes.checkout} size="lg" className="mt-6 w-full justify-center">
-            {t("checkoutCta")}
-          </LinkButton>
+          {blockedItem ? (
+            <>
+              <p className="mt-4 text-xs text-error">
+                {tProduct("moreThanMaxCta")} {tProduct("moreThanMaxLink")}
+              </p>
+              <LinkButton
+                href={blockedItem.badyssOffer?.moreThanMax.url ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="lg"
+                className="mt-3 w-full justify-center gap-2"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+                {tProduct("orderViaWhatsApp")}
+              </LinkButton>
+            </>
+          ) : (
+            <LinkButton href={routes.checkout} size="lg" className="mt-6 w-full justify-center">
+              {t("checkoutCta")}
+            </LinkButton>
+          )}
           <Link
             href={routes.shop}
             className="mt-4 block text-center text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"

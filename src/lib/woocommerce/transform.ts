@@ -21,7 +21,7 @@ export const DISABLED_BADYSS_OFFER: BadyssOffer = {
   enabled: false,
   type: null,
   tiers: [],
-  maxQuantity: 5,
+  maxQuantity: 3,
   source: "product",
   moreThanMax: { enabled: false, whatsapp: "", url: "" },
 };

@@ -13,6 +13,8 @@ import { WishlistButton } from "./WishlistButton";
 import { SocialShare } from "./SocialShare";
 import { SizeGuideDrawer } from "./SizeGuideDrawer";
 import { Button } from "@/components/ui/Button";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { FaqAccordion } from "@/components/faq/FaqAccordion";
 import { formatPrice } from "@/lib/format";
 import { getEffectiveUnitPrice, getBadyssSavings, shouldShowMoreThanMaxCta } from "@/lib/badyss-offer";
@@ -103,9 +105,15 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   const isOutOfStock = effectiveStock.status === "out-of-stock";
   const availability = stockLabel[effectiveStock.status];
   const isDisabled = isOutOfStock || Boolean(missingAttribute);
+  // BADYSS only ever sells quantity 1-3 through the normal cart/buy-now
+  // flow — above that, the customer is routed to WhatsApp instead (see
+  // shouldShowMoreThanMaxCta's docblock). Normal ordering is blocked
+  // entirely at this quantity, not just left undiscounted.
+  const isOverBadyssLimit = shouldShowMoreThanMaxCta(effectiveOffer, quantity);
+  const isOrderBlocked = isDisabled || isOverBadyssLimit;
 
   function handleAddToCart() {
-    if (isDisabled) return;
+    if (isOrderBlocked) return;
     addItem({
       productId: product.id,
       variationId: resolvedVariant?.id,
@@ -126,7 +134,7 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
   // travels as a query string rather than through CartContext (this flow
   // has no cart dependency at all, by design).
   function handleBuyNow() {
-    if (isDisabled) return;
+    if (isOrderBlocked) return;
     setBuyNowPending(true);
     const params = new URLSearchParams({ qty: String(quantity) });
     if (Object.keys(selected).length > 0) params.set("attrs", JSON.stringify(selected));
@@ -231,47 +239,56 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
             );
           })()
         : null}
-      {shouldShowMoreThanMaxCta(effectiveOffer, quantity) ? (
+      {isOverBadyssLimit ? (
         <p className="-mt-2 text-xs text-muted-foreground">
-          {t("moreThanMaxCta")}{" "}
-          <a
-            href={effectiveOffer.moreThanMax.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-foreground underline underline-offset-2"
-          >
-            {t("moreThanMaxLink")}
-          </a>
+          {t("moreThanMaxCta")} {t("moreThanMaxLink")}
         </p>
       ) : null}
 
-      {/* Buy Now is the prominent (dark/primary) action — the fastest path
-          to a sale — with Add to Cart as its secondary companion, not the
-          other way round. Always side-by-side (never stacked, even at
-          375px) with a substantial 56px mobile height — `md:` (≥768px)
-          classes below restore the original 48px desktop treatment
-          unchanged, since `size="lg"` alone only ever gave 48px on every
-          screen size, which read as too thin on mobile. */}
-      <div className="flex flex-row gap-2 md:gap-3">
-        <Button
-          variant="secondary"
+      {/* Above the BADYSS quantity limit, normal ordering is blocked
+          entirely — no "Ajouter au panier"/"Acheter maintenant", only a
+          WhatsApp CTA, matching the same rule enforced server-side (see
+          the plugin's BADYSS_Cart). Otherwise: Buy Now is the prominent
+          (dark/primary) action — the fastest path to a sale — with Add to
+          Cart as its secondary companion, not the other way round. Always
+          side-by-side (never stacked, even at 375px) with a substantial
+          56px mobile height — `md:` (≥768px) classes below restore the
+          original 48px desktop treatment unchanged, since `size="lg"`
+          alone only ever gave 48px on every screen size, which read as too
+          thin on mobile. */}
+      {isOverBadyssLimit ? (
+        <LinkButton
+          href={effectiveOffer.moreThanMax.url}
+          target="_blank"
+          rel="noopener noreferrer"
           size="lg"
-          onClick={handleAddToCart}
-          disabled={isDisabled}
-          className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
+          className="h-14 w-full justify-center gap-2 md:h-12"
         >
-          {ctaLabel}
-        </Button>
-        <Button
-          size="lg"
-          onClick={handleBuyNow}
-          loading={buyNowPending}
-          disabled={isDisabled}
-          className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
-        >
-          {t("buyNow")}
-        </Button>
-      </div>
+          <WhatsAppIcon className="h-4 w-4" />
+          {t("orderViaWhatsApp")}
+        </LinkButton>
+      ) : (
+        <div className="flex flex-row gap-2 md:gap-3">
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={handleAddToCart}
+            disabled={isDisabled}
+            className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
+          >
+            {ctaLabel}
+          </Button>
+          <Button
+            size="lg"
+            onClick={handleBuyNow}
+            loading={buyNowPending}
+            disabled={isDisabled}
+            className="h-14 flex-1 justify-center px-3 text-sm md:h-12 md:px-6 md:text-base"
+          >
+            {t("buyNow")}
+          </Button>
+        </div>
+      )}
 
       <SocialShare
         productName={product.name}
@@ -298,12 +315,27 @@ export function AddToCartPanel({ product }: AddToCartPanelProps) {
         <span className="shrink-0 text-base font-medium text-foreground">
           {formatPrice(effectivePrice.amount, effectivePrice.currency)}
         </span>
-        <Button variant="secondary" size="lg" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center px-3">
-          {ctaLabelCompact}
-        </Button>
-        <Button size="lg" onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center px-3">
-          {t("buyShort")}
-        </Button>
+        {isOverBadyssLimit ? (
+          <LinkButton
+            href={effectiveOffer.moreThanMax.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="lg"
+            className="flex-1 justify-center gap-2 px-3"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            {t("orderViaWhatsApp")}
+          </LinkButton>
+        ) : (
+          <>
+            <Button variant="secondary" size="lg" onClick={handleAddToCart} disabled={isDisabled} className="flex-1 justify-center px-3">
+              {ctaLabelCompact}
+            </Button>
+            <Button size="lg" onClick={handleBuyNow} loading={buyNowPending} disabled={isDisabled} className="flex-1 justify-center px-3">
+              {t("buyShort")}
+            </Button>
+          </>
+        )}
       </div>
 
       <SizeGuideDrawer

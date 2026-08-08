@@ -132,6 +132,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
   const savings = getBadyssSavings(effectiveOffer, quantity);
   const attributesEntries = Object.entries(initialAttributes);
   const isOutOfStock = effectiveStock.status === "out-of-stock";
+  const isOverBadyssLimit = shouldShowMoreThanMaxCta(effectiveOffer, quantity);
 
   function updateField(field: keyof FormValues, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -140,6 +141,7 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (isOverBadyssLimit) return;
     const nextErrors = validate(values, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -297,9 +299,22 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
           </div>
         </div>
 
-        <Button type="submit" size="lg" loading={status === "submitting"} disabled={isOutOfStock} className="w-full justify-center">
-          {t("confirmOrder")}
-        </Button>
+        {isOverBadyssLimit ? (
+          <LinkButton
+            href={effectiveOffer.moreThanMax.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="lg"
+            className="w-full justify-center gap-2"
+          >
+            <WhatsAppIcon className="h-4 w-4" />
+            {tProduct("orderViaWhatsApp")}
+          </LinkButton>
+        ) : (
+          <Button type="submit" size="lg" loading={status === "submitting"} disabled={isOutOfStock} className="w-full justify-center">
+            {t("confirmOrder")}
+          </Button>
+        )}
         {submitError ? <p className="-mt-3 text-sm text-error">{submitError}</p> : null}
 
         <div className="border-t border-border pt-6">
@@ -330,17 +345,9 @@ export function BuyNowCheckout({ product, initialQuantity, initialAttributes }: 
             {tCheckout("quantityDiscountAppliedAmount", { amount: formatPrice(savings.amount, effectivePrice.currency) ?? "" })}
           </p>
         ) : null}
-        {shouldShowMoreThanMaxCta(effectiveOffer, quantity) ? (
+        {isOverBadyssLimit ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            {tProduct("moreThanMaxCta")}{" "}
-            <a
-              href={effectiveOffer.moreThanMax.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-foreground underline underline-offset-2"
-            >
-              {tProduct("moreThanMaxLink")}
-            </a>
+            {tProduct("moreThanMaxCta")} {tProduct("moreThanMaxLink")}
           </p>
         ) : null}
         <p className="mt-2 text-xs text-muted-foreground">{tCheckout("shippingSeparately")}</p>
